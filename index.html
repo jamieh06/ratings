@@ -1,0 +1,2867 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>TV Ratings</title>
+<!-- Install as an app (Mac: Safari > File > Add to Dock; iPhone: Share > Add to Home Screen). The Dock and Home Screen icon come from apple-touch-icon. -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#9fb4d0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070b1a" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TV Ratings">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<style>
+/* ============================================================
+   TV Ratings — macOS Tahoe 26 desktop (built from the tahoe-design starter)
+   Tokens first, then wallpaper, task sheet,
+   Control Center, Dock, responsive, fallbacks.
+   ============================================================ */
+
+:root {
+  color-scheme: light dark;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-snap: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* text over glass */
+  --text-1: rgba(0, 0, 0, .85);
+  --text-2: rgba(0, 0, 0, .66);        /* 4.5:1+ on the glass over the blue wave */
+  --text-3: rgba(0, 0, 0, .30);
+  --sep: rgba(60, 60, 67, .16);
+  --hover: rgba(0, 0, 0, .045);
+  --sel: rgba(0, 0, 0, .075);
+
+  --accent: #007aff;
+  --red: #ff3b30;
+  --orange: #ff9500;
+  /* small coloured text on glass: the same hues, deepened (light) or lifted (dark) to 4.5:1 */
+  --red-text: color-mix(in srgb, var(--red) 52%, #000);   /* 4.5:1+ on the glass, like --dt-red */
+  --accent-text: color-mix(in srgb, var(--accent) 78%, #000);
+
+  /* list + view colours */
+  --c-all: #6e6e73;
+  --c-today: #007aff;
+  --c-upcoming: #ff3b30;
+  --c-done: #8e8e93;
+  --c-uni: #5856d6;
+  --c-personal: #ff9500;
+  --c-projects: #30b0c7;
+  --c-societies: #ff2d55;
+  --c-shopping: #34c759;
+
+  /* wallpaper */
+  --wp-base: #9fb4d0;
+  --wp-sky-1: #7f9cc3;
+  --wp-sky-2: #b4c2d6;
+  --wp-sky-3: #eed8b4;
+  --wp-sky-4: #d9dbe2;
+  --wp-fold: #3577de;
+  --wp-fold-hi: #8fb9ea;
+  --wp-lip-1: #e3f1f7;
+  --wp-lip-2: #8fc3ec;
+  --wp-body-1: #2d6fe0;
+  --wp-body-2: #1a4fc6;
+  --wp-body-3: #3b7fe2;
+  --wp-core: #0f3db4;
+  --wp-glow: #6aa6ec;
+  --wp-haze: #d3deec;
+  --wp-crest: #ffffff;
+  --wp-streak: #b6def5;
+
+  /* glass: the task sheet */
+  --sheet-bg: rgba(232, 238, 249, .56);
+  --sheet-side: rgba(250, 251, 253, .62);
+  --sheet-shadow: 0 24px 60px rgba(12, 36, 92, .22), 0 2px 10px rgba(12, 36, 92, .10);
+  --rim-a: rgba(255, 255, 255, .90);
+  --rim-b: rgba(255, 255, 255, .28);
+  --field-bg: rgba(255, 255, 255, .78);
+  --round-bg: rgba(255, 255, 255, .55);
+  --tick-ring: rgba(0, 0, 0, .45);       /* 3:1 against the glass */
+  --badge-ring: rgba(244, 247, 252, .95);
+
+  /* tiles (Edit Controls) */
+  /* the Details tiles' deep blue, so white titles and the pale subtitles keep 4.5:1 over the light glass */
+  --tile-bg: linear-gradient(160deg, rgba(0, 62, 170, .74), rgba(0, 54, 156, .78));
+  --tile-text: #fff;
+  --tile-sub: #e0edff;
+  --tile-warn: #ffe6e3;
+  --tile-tick: rgba(255, 255, 255, .20);
+
+  /* Control Center */
+  --cc-bg: linear-gradient(150deg, rgba(0, 46, 150, .40), rgba(0, 40, 140, .46) 55%, rgba(0, 46, 150, .42));   /* deep blue glass: white text 4.5:1+ over the bright wave */
+  --cc-text: #fff;
+  --cc-text-2: rgba(255, 255, 255, .9);
+  --cc-blur: blur(16px) saturate(190%) brightness(.68);   /* dims a bright backdrop (the crest, the pale sky) under white text */
+  --cc-label-bg: var(--cc-bg);          /* labels sit on bare wallpaper: a small glass pill keeps them 4.5:1 over the crest (both modes) */
+  --cc-label-filter: var(--cc-blur);
+  --cc-off: rgba(255, 255, 255, .20);
+  --cc-on: rgba(255, 255, 255, .97);
+  --cc-on-fg: #1a78f2;
+  --cc-track: rgba(255, 255, 255, .30);
+  --cc-shadow: 0 8px 24px rgba(8, 40, 120, .16);
+
+  /* Dock */
+  --dock-bg: rgba(255, 255, 255, .26);
+  --dock-sep: rgba(0, 0, 0, .16);
+  --dock-dot: rgba(0, 0, 0, .55);
+  --badge-bg: rgba(255, 255, 255, .94);
+  --badge-text: rgba(0, 0, 0, .78);
+  --badge-rim: rgba(0, 0, 0, .06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-1: rgba(255, 255, 255, .92);
+    --text-2: rgba(255, 255, 255, .64);
+    --text-3: rgba(255, 255, 255, .34);
+    --sep: rgba(255, 255, 255, .12);
+    --hover: rgba(255, 255, 255, .06);
+    --sel: rgba(255, 255, 255, .10);
+
+    /* system blue in dark too, like refs 12-14 */
+    --accent: #0a84ff;
+    --red: #ff453a;
+    --orange: #ff9f0a;
+    --red-text: color-mix(in srgb, var(--red) 66%, #fff);
+    --accent-text: color-mix(in srgb, var(--accent) 75%, #fff);
+
+    --c-all: #98989d;
+    --c-today: #0a84ff;
+    --c-upcoming: #ff453a;
+    --c-done: #98989d;
+    --c-uni: #8e8cff;
+    --c-personal: #ff9f0a;
+    --c-projects: #40c8e0;
+    --c-societies: #ff4f74;
+    --c-shopping: #30d158;
+
+    --wp-base: #0a0f22;
+    --wp-sky-1: #070b1a;
+    --wp-sky-2: #10162e;
+    --wp-sky-3: #24203c;
+    --wp-sky-4: #161b34;
+    --wp-fold: #1a3c92;
+    --wp-fold-hi: #2f4f9c;
+    --wp-lip-1: #5d79b8;
+    --wp-lip-2: #23448f;
+    --wp-body-1: #12307f;
+    --wp-body-2: #0a1d5a;
+    --wp-body-3: #163a8c;
+    --wp-core: #050f3a;
+    --wp-glow: #22479a;
+    --wp-haze: #26294a;
+    --wp-crest: #b9ccff;
+    --wp-streak: #4a6fc0;
+
+    --sheet-bg: rgba(22, 24, 34, .46);
+    --sheet-side: rgba(36, 38, 48, .50);
+    --sheet-shadow: 0 24px 60px rgba(0, 0, 0, .45), 0 2px 10px rgba(0, 0, 0, .25);
+    --rim-a: rgba(255, 255, 255, .34);
+    --rim-b: rgba(255, 255, 255, .08);
+    --field-bg: rgba(255, 255, 255, .08);
+    --round-bg: rgba(255, 255, 255, .10);
+    --tick-ring: rgba(255, 255, 255, .42);
+    --badge-ring: rgba(30, 32, 42, .95);
+
+    --tile-bg: linear-gradient(160deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .07));
+    --tile-text: rgba(255, 255, 255, .94);
+    --tile-sub: #8cc8ff;                 /* blue, not amber: one accent in both modes */
+    --tile-warn: #ffaaa4;
+    --tile-tick: rgba(255, 255, 255, .10);
+
+    --cc-bg: linear-gradient(150deg, rgba(40, 44, 62, .42), rgba(22, 24, 36, .30) 55%, rgba(34, 38, 56, .38));
+    --cc-text: rgba(255, 255, 255, .94);
+    --cc-text-2: rgba(255, 255, 255, .72);
+    --cc-blur: blur(16px) saturate(190%);
+    --cc-off: rgba(255, 255, 255, .11);
+    --cc-on: rgba(255, 255, 255, .92);
+    --cc-on-fg: #0a84ff;                 /* on toggles: white disc, system blue glyph (was orange) */
+    --cc-track: rgba(255, 255, 255, .16);
+    --cc-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+
+    --dock-bg: rgba(26, 28, 40, .40);
+    --dock-sep: rgba(255, 255, 255, .16);
+    --dock-dot: rgba(255, 255, 255, .6);
+    --badge-bg: rgba(64, 66, 80, .96);
+    --badge-text: rgba(255, 255, 255, .92);
+    --badge-rim: rgba(255, 255, 255, .22);
+  }
+}
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.25;
+  color: var(--text-1);
+  background: var(--wp-base);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+button, input { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: default; }
+input { border: 0; outline: 0; background: transparent; padding: 0; min-width: 0; }
+svg.ic { width: 1em; height: 1em; display: block; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+svg.ic--fill { fill: currentColor; stroke: none; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* shared Liquid Glass rim: bright top-left and bottom-right, dim sides */
+.rim { position: relative; }
+.rim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--rim-a) 0%, var(--rim-b) 28%, rgba(255,255,255,0) 50%, var(--rim-b) 72%, var(--rim-a) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ---------- wallpaper ---------- */
+.wallpaper { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+.wallpaper svg { width: 100%; height: 100%; display: block; }
+.wp-s1 { stop-color: var(--wp-sky-1); }
+.wp-s2 { stop-color: var(--wp-sky-2); }
+.wp-s3 { stop-color: var(--wp-sky-3); }
+.wp-s4 { stop-color: var(--wp-sky-4); }
+.wp-b0 { stop-color: var(--wp-lip-1); }
+.wp-b1 { stop-color: var(--wp-lip-2); }
+.wp-b2 { stop-color: var(--wp-body-1); }
+.wp-b3 { stop-color: var(--wp-body-2); }
+.wp-b4 { stop-color: var(--wp-body-3); }
+.wp-fold { fill: var(--wp-fold); }
+.wp-fold-hi { fill: var(--wp-fold-hi); }
+.wp-core { fill: var(--wp-core); }
+.wp-glow { fill: var(--wp-glow); }
+.wp-haze { fill: var(--wp-haze); }
+.wp-crest { stroke: var(--wp-crest); fill: none; }
+.wp-streak { stroke: var(--wp-streak); fill: none; }
+.wp-lip { stroke: var(--wp-lip-1); fill: none; }
+/* Static glass (see glass in the script): the SVG above is drawn once into this canvas, then hidden, so its
+   blurs never re-render. Cover + centre is the SVG's xMidYMid slice. */
+.wallpaper__raster { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 50%; }
+.wallpaper.is-raster svg { display: none; }
+/* Glass that sits still on the wallpaper gets its blurred backdrop as a baked image (--baked, same blur and
+   saturation, edges mirrored like backdrop-filter) instead of a live backdrop-filter. Same look, no re-blur per frame.
+   Two steps so there is never a frame without blur: .is-baking lays the decoded image over the live blur (it is
+   opaque, so the look doesn't change), and only frames later .is-baked turns the live blur off. */
+.sheet:is(.is-baking, .is-baked) { background: linear-gradient(var(--sheet-bg), var(--sheet-bg)), var(--baked) 0 0 / 100% 100% no-repeat; }
+.cc-sort__label:is(.is-baking, .is-baked) { background: var(--cc-label-bg), var(--baked) 0 0 / 100% 100% no-repeat; }
+.cc-edit:is(.is-baking, .is-baked) { background: var(--cc-bg), var(--baked) 0 0 / 100% 100% no-repeat; }
+/* Control Center and the Dock too: a full-window fade above them (Task details' backdrop) made every one of their
+   live blurs re-render on every frame of the fade */
+.cc-mod:is(.is-baking, .is-baked) { background: var(--cc-bg), var(--baked) 0 0 / 100% 100% no-repeat; }
+.cc-round.is-on:is(.is-baking, .is-baked) { background: linear-gradient(var(--cc-on), var(--cc-on)), var(--baked) 0 0 / 100% 100% no-repeat; }
+.dock:is(.is-baking, .is-baked) { background: linear-gradient(var(--dock-bg), var(--dock-bg)), var(--baked) 0 0 / 100% 100% no-repeat; }
+:is(.sheet, .cc-sort__label, .cc-edit, .cc-mod, .dock).is-baked { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* ---------- desktop layout ---------- */
+.desktop {
+  position: relative; z-index: 1; height: 100vh; height: 100dvh;
+  /* the sheet sits centred in the space left of Control Center and grows with the window */
+  --top-gap: 28px;                                   /* wallpaper above the sheet */
+  --dock-clear: 100px;                               /* Dock (6px off the bottom, 68px tall) plus a 26px gap */
+  --cc-w: 288px;
+  --cc-right: 12px;
+  --stage: calc(100vw - var(--cc-w) - var(--cc-right));  /* width left of Control Center */
+  --edge: clamp(32px, 5vw, 72px);                    /* wallpaper either side of the sheet */
+}
+
+/* ---------- the task sheet (Edit Controls, refs 12 + 14) ---------- */
+.sheet {
+  position: absolute;
+  top: var(--top-gap);
+  bottom: var(--dock-clear);
+  left: calc(var(--stage) / 2);
+  width: min(1120px, calc(var(--stage) - 2 * var(--edge)));
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: clamp(196px, 22%, 232px) minmax(0, 1fr);
+  border-radius: 26px;
+  overflow: hidden;
+  background: var(--sheet-bg);
+  -webkit-backdrop-filter: blur(34px) saturate(165%);
+  backdrop-filter: blur(34px) saturate(165%);
+  box-shadow: var(--sheet-shadow), inset 0 0 0 .5px rgba(255,255,255,.18);
+}
+
+/* sidebar */
+.side {
+  min-height: 0;
+  overflow: auto;
+  padding: 14px 10px 14px;
+  background: var(--sheet-side);
+  border-right: .5px solid var(--sep);
+}
+.search {
+  display: flex; align-items: center; gap: 6px;
+  height: 28px;
+  margin: 0 4px 10px;
+  padding: 0 10px;
+  border-radius: 14px;
+  background: var(--field-bg);
+  box-shadow: inset 0 0 0 .5px var(--sep), 0 .5px 1px rgba(0,0,0,.04);
+  color: var(--text-2);
+}
+.search .ic { font-size: 13px; }
+.search__input { flex: 1; font-size: 13px; color: var(--text-1); }
+.search__input::placeholder { color: var(--text-3); }
+
+.nav { list-style: none; margin: 0; padding: 0; }
+.navrow {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%;
+  height: 38px;
+  padding: 0 10px 0 8px;
+  border-radius: 10px;
+  text-align: left;
+  transition: background-color 150ms var(--ease-snap);
+}
+.navrow:hover { background: var(--hover); }
+.navrow[aria-current="page"] { background: var(--sel); }
+.navrow__label { flex: 1; min-width: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navrow__count { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+/* coloured squircle icons */
+.sq {
+  --c: var(--c-all);
+  width: 24px; height: 24px;
+  flex: none;
+  display: grid; place-items: center;
+  border-radius: 7px;
+  color: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 78%, #fff), var(--c));
+  box-shadow: inset 0 .5px 0 rgba(255,255,255,.4), 0 .5px 1.5px rgba(0,0,0,.18);
+  font-size: 15px;
+}
+.sq .ic { stroke-width: 2; }
+.sq--all { --c: var(--c-all); }
+.sq--today { --c: var(--c-today); }
+.sq--upcoming { --c: var(--c-upcoming); }
+.sq--done { --c: var(--c-done); }
+.sq--uni { --c: var(--c-uni); }
+.sq--personal { --c: var(--c-personal); }
+.sq--projects { --c: var(--c-projects); }
+.sq--societies { --c: var(--c-societies); }
+.sq--shopping { --c: var(--c-shopping); }
+@media (prefers-color-scheme: dark) {
+  .sq { background: rgba(255,255,255,.10); color: var(--c); box-shadow: inset 0 .5px 0 rgba(255,255,255,.22), inset 0 0 0 .5px rgba(255,255,255,.08); }
+}
+
+/* main pane */
+.pane { min-height: 0; display: flex; flex-direction: column; }
+
+.roundbtn {
+  width: 28px; height: 28px;
+  flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--round-bg);
+  color: var(--text-2);
+  font-size: 15px;
+  box-shadow: inset 0 .5px 0 rgba(255,255,255,.5), 0 .5px 1px rgba(0,0,0,.06);
+  transition: transform 140ms var(--ease-snap), background-color 150ms var(--ease-snap);
+}
+.roundbtn:active { transform: scale(.97); }
+
+.pane__scroll { flex: 1; min-height: 0; overflow: auto; padding: 0 14px 8px; scrollbar-width: thin; scrollbar-color: var(--text-3) transparent; }
+
+.section { padding: 14px 4px 12px; }
+.section + .section { border-top: .5px solid var(--sep); }
+.section__head { display: flex; align-items: baseline; gap: 6px; margin: 0 0 10px 6px; font-size: 13px; font-weight: 600; color: var(--text-2); }
+.section__count { font-weight: 500; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+/* footer bar (ref 12: hint + Done pill) */
+.pane__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  height: 52px;
+  margin: 0 10px;
+  padding: 0 4px 0 8px;
+  border-top: .5px solid var(--sep);
+  font-size: 12px;
+  color: var(--text-2);
+}
+.pane__hint { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pillbtn {
+  flex: none;
+  height: 28px;
+  padding: 0 15px;
+  border-radius: 14px;
+  background: var(--accent-fill);   /* white text 4.5:1+ (plain system blue is 4.0) */
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), var(--done-shadow);
+  transition: transform 140ms var(--ease-snap);
+}
+.pillbtn:active { transform: scale(.97); }
+
+/* ---------- Control Center (refs 6, 13) ---------- */
+.cc {
+  position: absolute;
+  top: var(--top-gap);
+  right: var(--cc-right);
+  width: var(--cc-w);
+  display: grid;
+  grid-template-columns: repeat(4, 63px);
+  grid-template-rows: repeat(5, 63px) auto auto;
+  gap: 12px;
+  color: var(--cc-text);
+}
+.cc-mod {
+  background: var(--cc-bg);
+  -webkit-backdrop-filter: var(--cc-blur);
+  backdrop-filter: var(--cc-blur);
+  box-shadow: var(--cc-shadow), inset 0 0 16px rgba(255,255,255,.14);
+  transition: transform 160ms var(--ease-snap), background-color 180ms var(--ease-snap);
+}
+.cc-mod:active { transform: scale(.97); }
+.cc-mod.rim::after { padding: 1.2px; background: linear-gradient(135deg, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 26%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.35) 74%, rgba(255,255,255,.9) 100%); }
+@media (prefers-color-scheme: dark) {
+  .cc-mod.rim::after { background: linear-gradient(135deg, rgba(255,255,255,.45) 0%, rgba(255,255,255,.12) 26%, rgba(255,255,255,.04) 50%, rgba(255,255,255,.12) 74%, rgba(255,255,255,.4) 100%); }
+}
+
+/* pill toggles (Wi-Fi / Focus) */
+.cc-pill {
+  grid-column: span 2;
+  border-radius: 999px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 10px 0 9px;   /* room for "Completed" inside the pill */
+  text-align: left;
+}
+.cc-pill__icon {
+  width: 42px; height: 42px;
+  flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--cc-off);
+  color: var(--cc-text);
+  font-size: 20px;
+  box-shadow: inset 0 .5px 0 rgba(255,255,255,.35);
+}
+.cc-pill.is-on .cc-pill__icon,
+.cc-round.is-on { background: var(--cc-on); color: var(--cc-on-fg); }
+.cc-pill__text { min-width: 0; }
+.cc-pill__title { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.cc-pill__sub { margin-top: 1px; font-size: 12px; color: var(--cc-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Up Next: the next task as a 2x2 module (tick, task, due and list), no transport controls */
+.cc-next {
+  grid-column: 3 / span 2;
+  grid-row: 1 / span 2;
+  border-radius: 30px;
+  padding: 13px 13px 13px 14px;
+  display: flex; flex-direction: column;
+}
+.cc-next__top { display: flex; justify-content: space-between; align-items: flex-start; }
+.cc-next__tick {
+  width: 32px; height: 32px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--tile-tick);
+  box-shadow: inset 0 0 0 1.6px rgba(255,255,255,.88);
+  transition: transform 140ms var(--ease-snap);
+}
+.cc-next__tick:active { transform: scale(.97); }
+.cc-next__label { margin-top: 2px; font-size: 11px; font-weight: 600; letter-spacing: .01em; color: var(--cc-text-2); }
+.cc-next__title { margin-top: auto; font-size: 13px; font-weight: 600; line-height: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cc-next__meta { margin-top: 2px; font-size: 12px; color: var(--cc-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-next__due { font-weight: 600; color: var(--tile-warn); }
+
+/* progress: 2x2 modules with a ring and a count; read-only, so no press state */
+.cc-prog {
+  grid-column: span 2;
+  grid-row: span 2;
+  border-radius: 30px;
+  padding: 13px 14px;
+  display: flex; flex-direction: column;
+}
+.cc-prog:active { transform: none; }
+.cc-ring { position: relative; width: 56px; height: 56px; }
+.cc-ring svg { width: 100%; height: 100%; display: block; transform: rotate(-90deg); }
+.cc-ring__track { fill: none; stroke: var(--cc-track); stroke-width: 5.5; }
+.cc-ring__fill { fill: none; stroke: var(--cc-on); stroke-width: 5.5; stroke-linecap: round; }
+.cc-ring__count { position: absolute; inset: 0; display: grid; place-items: center; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.cc-ring__count small { font-size: 11px; font-weight: 500; color: var(--cc-text-2); }
+.cc-prog__title { margin-top: auto; font-size: 13px; font-weight: 600; line-height: 16px; white-space: nowrap; }
+.cc-prog__sub { margin-top: 1px; font-size: 12px; color: var(--cc-text-2); }
+
+/* round buttons (Bluetooth / AirDrop / bottom row) */
+.cc-sort { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 63px); gap: 12px; margin: 0; padding: 0; border: 0; }
+.cc-sort__legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.cc-sort__item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.cc-round {
+  width: 63px; height: 63px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 23px;
+}
+.cc-sort__label { font-size: 11px; font-weight: 500; color: var(--cc-text-2); white-space: nowrap; text-shadow: 0 0 6px rgba(0,0,0,.18);
+  padding: 1px 6px; border-radius: 999px; background: var(--cc-label-bg); -webkit-backdrop-filter: var(--cc-label-filter); backdrop-filter: var(--cc-label-filter); }
+
+.cc-edit {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 4px;
+  height: 28px;
+  padding: 0 15px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cc-text);
+  background: var(--cc-bg);
+  -webkit-backdrop-filter: var(--cc-blur);
+  backdrop-filter: var(--cc-blur);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
+}
+
+/* ---------- Dock (refs 9, 10, 11, 12) ---------- */
+.dock {
+  position: fixed;
+  left: 50%;
+  bottom: 6px;
+  z-index: 15;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 9px;
+  border-radius: 26px;
+  background: var(--dock-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 10px 30px rgba(10, 30, 80, .18), inset 0 1px 0 rgba(255,255,255,.35);
+  list-style: none;
+  margin: 0;
+}
+.dock__item { position: relative; }
+.dock__btn { display: block; position: relative; transition: transform 200ms var(--ease-snap); }
+.dock__btn:focus-visible { transform: translateY(-4px); }
+@media (hover: hover) { .dock__btn:hover { transform: translateY(-4px); } }
+.dock__btn:active { transform: translateY(-4px) scale(.97); }
+/* app-style icons: list-colour gradient, top gloss, rim, filled glyph with its own shading */
+.app-icon {
+  --c: var(--c-all);
+  width: 54px; height: 54px;
+  border-radius: 12.5px;
+  display: grid; place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(130% 72% at 50% -10%, rgba(255,255,255,.46), rgba(255,255,255,0) 60%),
+    linear-gradient(165deg, color-mix(in srgb, var(--c) 68%, #fff) 0%, var(--c) 48%, color-mix(in srgb, var(--c) 76%, #000) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1.5px 0 rgba(0,0,0,.14), inset 0 0 0 .5px rgba(255,255,255,.22), 0 3px 8px rgba(0,0,0,.20), 0 1px 2px rgba(0,0,0,.10);
+}
+.app-icon svg { width: 78%; height: 78%; overflow: visible; filter: drop-shadow(0 1.6px 1.2px rgba(0,0,0,.24)); }
+.app-icon .g-main { fill: url(#glyphLight); }
+.app-icon .g-sub { fill: rgba(255,255,255,.62); }
+.app-icon .g-line { fill: none; stroke: url(#glyphLight); stroke-width: 2.8; stroke-linecap: round; }
+.app-icon--uni { --c: var(--c-uni); }
+.app-icon--personal { --c: var(--c-personal); }
+.app-icon--projects { --c: var(--c-projects); }
+.app-icon--societies { --c: var(--c-societies); }
+.app-icon--shopping { --c: var(--c-shopping); }
+.app-icon--todo { background: radial-gradient(130% 72% at 50% -10%, rgba(255,255,255,1), rgba(255,255,255,0) 60%), linear-gradient(180deg, #ffffff 0%, #eef0f4 55%, #dcdfe6 100%); }
+.app-icon--todo svg { filter: drop-shadow(0 1px .8px rgba(0,0,0,.14)); }
+.todo-tick { fill: var(--c-today); }
+.todo-check { fill: none; stroke: #fff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.todo-bar { fill: #c6cad3; }
+.todo-ring { fill: none; stroke-width: 2.1; }
+.todo-ring--a { stroke: var(--c-personal); }
+.todo-ring--b { stroke: var(--c-shopping); }
+.uni-cord { fill: none; stroke: #ffd23f; stroke-width: 1.8; stroke-linecap: round; }
+.uni-tassel { fill: #ffcc1a; }
+.bag-hole { fill: color-mix(in srgb, var(--c) 70%, #000); }
+.dock__badge {
+  position: absolute;
+  top: -5px; right: -6px;
+  min-width: 19px; height: 19px;
+  padding: 0 5px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  font-size: 11px; font-weight: 600; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--badge-text);
+  background: var(--badge-bg);
+  box-shadow: 0 1px 3px rgba(0,0,0,.18), inset 0 0 0 .5px var(--badge-rim);
+  pointer-events: none;
+}
+.dock__badge[hidden] { display: none; }   /* no ratings this week: no badge (display:grid above would otherwise win over [hidden]) */
+.dock__sep { width: 1px; height: 46px; margin: 0 5px; background: var(--dock-sep); }
+.dock__dot { position: absolute; left: 50%; bottom: -6px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--dock-dot); }
+.dock__label {
+  position: absolute;
+  left: 50%; bottom: calc(100% + 16px);
+  transform: translateX(-50%) translateY(4px);
+  padding: 4px 10px;
+  border-radius: 9px;
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--text-1);
+  background: var(--dock-bg);   /* no blur of its own: inside the Dock's glass it had nothing to blur (the Dock is its
+                                   backdrop root), so the plain tint looks exactly the same */
+  box-shadow: 0 4px 14px rgba(0,0,0,.14), inset 0 0 0 .5px rgba(255,255,255,.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms var(--ease-snap), transform 150ms var(--ease-snap);
+}
+.dock__btn:focus-visible + .dock__label { opacity: 1; transform: translateX(-50%) translateY(0); }
+@media (hover: hover) { .dock__item:hover .dock__label { opacity: 1; transform: translateX(-50%) translateY(0); } }
+.trash { width: 54px; height: 54px; }
+.trash__can { fill: url(#binGlass); stroke: rgba(70,80,100,.35); stroke-width: 1; }
+.trash__rib { stroke: rgba(70,80,100,.35); stroke-width: 1; }
+.trash__lid { fill: rgba(255,255,255,.75); stroke: rgba(70,80,100,.35); stroke-width: 1; }
+@media (prefers-color-scheme: dark) {
+  /* dark tint (ref 10): smoked squircles, glyphs tinted in each list colour */
+  .app-icon, .app-icon--todo {
+    background: radial-gradient(130% 72% at 50% -10%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%), linear-gradient(165deg, #3b3d4a 0%, #24262f 55%, #16171e 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.24), inset 0 0 0 .5px rgba(255,255,255,.10), 0 3px 8px rgba(0,0,0,.42);
+  }
+  .app-icon svg, .app-icon--todo svg { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--c) 40%, transparent)); }
+  .app-icon .g-main { fill: var(--c); }
+  .app-icon .g-sub { fill: color-mix(in srgb, var(--c) 48%, transparent); }
+  .app-icon .g-line { stroke: var(--c); }
+  .app-icon--todo { --c: var(--accent); }
+  .todo-tick { fill: var(--accent); }
+  .todo-check { stroke: #1b1c22; }
+  .todo-bar { fill: rgba(255,255,255,.26); }
+  .bag-hole { fill: #1b1c22; }
+  .trash__can { fill: rgba(255,255,255,.10); stroke: rgba(255,255,255,.55); }
+  .trash__rib { stroke: rgba(255,255,255,.55); }
+  .trash__lid { fill: rgba(255,255,255,.14); stroke: rgba(255,255,255,.55); }
+}
+
+/* ---------- focus ---------- */
+:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 2px; }
+.spot__input:focus-visible, .search__input:focus-visible { outline: 0; }
+
+/* ---------- narrow or short windows: readable stack ---------- */
+@media (max-width: 1023px), (max-height: 619px) {
+  body { overflow-x: hidden; overflow-y: auto; }
+  .desktop { height: auto; display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 24px 16px 112px; }
+  .sheet, .cc { position: static; transform: none; }
+  .sheet { width: 100%; max-width: 680px; height: auto; }
+  .pane__scroll { overflow: visible; }
+}
+@media (max-width: 640px) {
+  .sheet { grid-template-columns: minmax(0, 1fr); }
+  .side { border-right: 0; border-bottom: .5px solid var(--sep); }
+  .side .nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 4px; }
+  .tiles { grid-template-columns: minmax(0, 1fr); grid-auto-rows: 58px; }
+  .tile--big, .tile--pill { grid-column: auto; }
+  .tile--big { grid-row: span 2; }
+  .pane__hint { white-space: normal; }
+  .dock { gap: 4px; padding: 5px 6px; border-radius: 20px; }
+  .app-icon, .trash { width: 36px; height: 36px; border-radius: 8.5px; }
+  .dock__sep { height: 30px; margin: 0 3px; }
+  .dock__badge { top: -4px; right: -4px; min-width: 15px; height: 15px; padding: 0 4px; font-size: 10px; }
+  /* Control Center spans the same 16px gutters as the task sheet: four fluid square cells instead of fixed 63px ones */
+  .cc { --cell: calc((100vw - 32px - 36px) / 4); width: 100%; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(5, var(--cell)) auto auto; }
+  .cc-sort { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cc-round { width: 100%; height: auto; aspect-ratio: 1; }
+}
+
+/* ---------- accessibility fallbacks ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  .sheet, .cc-mod, .cc-edit, .dock, .dock__label { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .sheet { background: rgba(246, 246, 248, .97); }
+  .side { background: rgba(236, 236, 240, 1); }
+  .dock, .dock__label { background: rgba(246, 246, 248, .96); }
+  .cc-mod, .cc-edit { background: rgb(30, 74, 168); }
+  :root { --tile-bg: rgb(26, 84, 176); --cc-label-bg: rgb(30, 74, 168); --cc-label-filter: none; }
+}
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: dark) {
+  :root { --tile-bg: rgb(20, 62, 140); --cc-label-bg: rgba(48, 48, 56, .96); }   /* tile: deep enough for the dark-mode tile text */
+  .sheet { background: rgba(40, 40, 44, .97); }
+  .side { background: rgba(48, 48, 54, 1); }
+  .dock, .dock__label { background: rgba(40, 40, 44, .96); }
+  .cc-mod, .cc-edit { background: rgba(48, 48, 56, .96); }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sheet { background: rgba(246, 246, 248, .96); }
+  .dock { background: rgba(246, 246, 248, .96); }
+  .cc-mod, .cc-edit { background: rgb(30, 74, 168); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 150ms !important; transition-property: opacity !important; }
+}
+
+/* ---------- rendered data ---------- */
+.tick.is-done { box-shadow: none; }
+.tick.is-done::after { display: none; }
+.row.is-done .row__title { color: var(--text-2); }
+.empty { margin: 0; padding: 32px 8px; text-align: center; font-size: 13px; color: var(--text-2); }
+
+/* ============================================================
+   Task actions (piece B): Spotlight add panel, quiet tick,
+   drag to reorder / onto the Dock, notification banner.
+   Motion: transform and opacity only.
+   ============================================================ */
+:root {
+  --panel-bg: rgba(248, 250, 254, .90);
+  --panel-rim: inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 .5px rgba(255,255,255,.25);
+  --panel-shadow: 0 8px 32px rgba(0, 0, 0, .18);
+  --panel-text-2: rgba(0, 0, 0, .60);
+  --chip-bg: rgba(0, 0, 0, .055);
+  --chip-hover: rgba(0, 0, 0, .095);
+  --accent-fill: color-mix(in srgb, var(--accent) 86%, #000);  /* white text on it stays above 4.5:1 */
+  --on-accent: #fff;
+  --ghost-bg: rgb(228, 241, 255);       /* .78 white over the 20px-blurred, 180%-saturated sheet, as a plain fill */
+  --banner-bg: rgba(246, 248, 252, .80);
+  --spot-bg: rgba(248, 250, 254, .96);   /* thick enough that the Today tiles don't read through */
+  --done-shadow: 0 1px 3px rgba(0, 60, 160, .20);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --panel-bg: rgba(40, 42, 54, .90);
+    --panel-rim: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 .5px rgba(255,255,255,.10);
+    --panel-shadow: 0 8px 32px rgba(0, 0, 0, .35);
+    --panel-text-2: rgba(255, 255, 255, .62);
+    --chip-bg: rgba(255, 255, 255, .08);
+    --chip-hover: rgba(255, 255, 255, .14);
+    --accent-fill: color-mix(in srgb, var(--accent) 80%, #000);  /* white text stays above 4.5:1 */
+    --on-accent: #fff;
+    --ghost-bg: rgb(41, 49, 78);
+    --banner-bg: rgba(36, 38, 48, .74);
+    --spot-bg: rgba(40, 42, 54, .95);
+    --done-shadow: 0 1px 3px rgba(0, 0, 0, .30);
+  }
+}
+
+/* Notification banner with Undo (standard 10) */
+.banner {
+  position: fixed;
+  top: 12px; right: 12px;
+  z-index: 50;
+  width: 344px;
+  max-width: calc(100vw - 24px);
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 20px;
+  color: var(--text-1);
+  background: var(--banner-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--panel-shadow), var(--panel-rim);
+  opacity: 0;
+  transform: translate(24px, -8px) scale(.96);
+  pointer-events: none;
+  transition: opacity 400ms var(--ease-sheet), transform 400ms var(--ease-sheet);
+}
+.banner.is-in { opacity: 1; transform: none; filter: none; pointer-events: auto; }
+.banner.is-out { opacity: 0; transform: translateX(calc(100% + 24px)); filter: none; transition-duration: 250ms; transition-timing-function: var(--ease-sheet); }
+.banner .app-icon { width: 38px; height: 38px; border-radius: 9px; }
+.banner .app-icon svg { filter: none; }
+.banner__text { min-width: 0; }
+.banner__title { font-size: 13px; font-weight: 600; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.banner__body { margin-top: 1px; font-size: 13px; line-height: 16px; color: var(--text-1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.banner__undo {
+  height: 28px;
+  padding: 0 13px;
+  border-radius: 14px;
+  font-size: 13px; font-weight: 500;
+  background: var(--chip-bg);
+  box-shadow: inset 0 0 0 .5px var(--sep);
+  transition: transform 140ms var(--ease-snap), background-color 150ms var(--ease-snap);
+}
+.banner__undo:hover { background: var(--chip-hover); }
+.banner__undo:active { transform: scale(.97); }
+@media (max-width: 640px) {
+  .banner { top: 8px; right: 8px; left: 8px; width: auto; max-width: none; }
+  dialog > .banner { top: auto; bottom: 8px; }   /* over a sheet: below it, not over its title */
+  .menu { max-width: calc(100vw - 32px); }
+  .spot-opt { flex-direction: column; gap: 2px; }
+  .spot-opt__head { width: auto; line-height: 20px; }
+  .spot-hit__meta { display: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .spot-panel, .banner, .drag-ghost__body { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(246, 246, 248, .97); }
+}
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: dark) {
+  .spot-panel, .banner, .drag-ghost__body { background: rgba(40, 40, 44, .97); }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .spot-panel, .banner, .drag-ghost__body { background: rgba(246, 246, 248, .97); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drag-ghost__body { animation: none; }
+  .banner, .banner.is-in, .banner.is-out { transform: none; filter: none; }
+  .spot-panel { transform: none; filter: none; }
+}
+
+/* ============================================================
+   Task details (piece C): its own glass sheet in the Edit Controls
+   language (refs 12 + 14). Section headers, tiles, pills and round
+   toggles; no browser form chrome. Opens from a row's info button,
+   a Today tile, Up Next, Enter on a focused task or a double-click.
+   ============================================================ */
+:root {
+  /* Liquid Glass sheet (standard s1): clear enough that the wallpaper's blue tints it */
+  --dt-bg: rgba(255, 255, 255, .22);
+  --dt-shadow: 0 8px 32px rgba(0, 0, 0, .18);   /* one soft layer (standard s1) */
+  --dt-spec: rgba(255, 255, 255, .55);         /* top-weighted highlight */
+  --on-fill: rgba(255, 255, 255, .96);         /* a chosen option: white, like Control Center's on state */
+  /* ref 14 tiles: deep, saturated translucent blue, white titles, pale blue subtitles */
+  --dt-tile: rgba(0, 62, 170, .74);
+  --dt-tile-hover: rgba(0, 70, 186, .82);
+  --dt-tile-rim: inset 0 1px 0 rgba(255,255,255,.30), inset 0 0 0 .5px rgba(255,255,255,.16);
+  --dt-on-tile: #fff;
+  --dt-on-tile-2: #d4e8ff;
+  --dt-chip: rgba(255, 255, 255, .26);
+  --dt-text-2: rgba(0, 0, 0, .72);         /* headers and labels on the clearer glass keep 4.5:1 */
+  --dt-red: color-mix(in srgb, var(--red) 52%, #000);
+  --dt-glow: 0 0 0 3px color-mix(in srgb, var(--accent) 38%, transparent);
+  --dt-minus: rgba(0, 0, 0, .10);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --dt-bg: rgba(30, 30, 34, .40);
+    --dt-shadow: 0 8px 32px rgba(0, 0, 0, .35);
+    --dt-spec: rgba(255, 255, 255, .18);
+    --dt-tile: rgba(18, 108, 255, .32);
+    --dt-tile-hover: rgba(18, 108, 255, .42);
+    --dt-tile-rim: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 .5px rgba(255,255,255,.10);
+    --dt-on-tile-2: #8cc8ff;
+    --dt-chip: rgba(255, 255, 255, .10);
+    --dt-text-2: rgba(255, 255, 255, .62);
+    --dt-red: color-mix(in srgb, var(--red) 62%, #fff);
+    --dt-minus: rgba(255, 255, 255, .14);
+  }
+}
+
+/* the dialog is only a positioned box; the glass inside it carries the look and the motion */
+.dt {
+  position: fixed;
+  inset: auto;
+  top: 28px;                                  /* pinned to the task sheet's edges: .desktop's --top-gap and --dock-clear */
+  bottom: 100px;
+  left: calc((100vw - 300px) / 2 - 230px);   /* centred over the task sheet, left of Control Center */
+  width: 460px;
+  height: auto;
+  max-width: none; max-height: none;
+  margin: 0; padding: 0; border: 0;
+  background: none;
+  color: var(--text-1);
+  --panel-text-2: var(--dt-text-2);
+  overflow: visible;
+}
+.dt::backdrop { background: rgba(12, 30, 70, .14); opacity: 0; transition: opacity 300ms cubic-bezier(0.32, 0.72, 0, 1); }
+.dt.is-in::backdrop { opacity: 1; }
+@media (prefers-color-scheme: dark) { .dt::backdrop { background: rgba(0, 0, 0, .32); } }
+html:has(.dt[open]) body { overflow: hidden; }
+
+.dt__glass {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  border-radius: 26px;
+  background: var(--dt-bg);
+  -webkit-backdrop-filter: blur(36px) saturate(180%);
+  backdrop-filter: blur(36px) saturate(180%);
+  box-shadow: var(--dt-shadow), inset 0 1px 0 var(--dt-spec), inset 0 0 0 .5px rgba(255,255,255,.18);
+  transform-origin: 50% 30%;
+  /* closed: a little small and clear; it materialises with scale and opacity (no filter: a blur on top of the
+     backdrop blur re-rendered the whole sheet every frame of the animation) */
+  opacity: 0;
+  transform: scale(.96);
+  transition: opacity 340ms var(--ease-sheet), transform 340ms var(--ease-sheet);
+}
+.dt.is-in .dt__glass { opacity: 1; transform: none; filter: none; }
+.dt.is-out .dt__glass { transition-duration: 220ms; }
+.dt__glass:focus { outline: 0; }
+
+:where(.dt) :is(textarea, input) {
+  display: block; width: 100%;
+  margin: 0; border: 0; outline: 0;
+  background: none;
+  font: inherit; color: inherit;
+  resize: none;
+  caret-color: var(--accent);
+  -webkit-appearance: none; appearance: none;
+}
+.dt textarea { overflow: hidden; }
+.dt :is(textarea, input)::placeholder { color: var(--panel-text-2); opacity: 1; }
+.dt :is(textarea, input):focus-visible { outline: 0; }
+
+.dt__head { padding: 24px 24px 8px; }
+.dt__title {
+  margin: 0 -8px; width: calc(100% + 16px);
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 22px; font-weight: 600; line-height: 26px; letter-spacing: -0.01em;
+  transition: background-color 150ms var(--ease-snap), box-shadow 150ms var(--ease-snap);
+}
+.dt__title:hover { background: var(--chip-bg); }
+/* editing: a plain text field with the focus glow, not a filled blue box (reads like Edit Lists' heading until edited) */
+.dt__title:focus { background: var(--field-bg); box-shadow: inset 0 0 0 .5px var(--sep), var(--dt-glow); }
+/* Opening and closing, the focus look doesn't fade on its own (its fade was all but over in 60ms anyway): a focus fade
+   under the moving glass repainted the sheet on the main thread every frame and cost frames */
+.dt:not(.is-in) :is(.dt__title, .dt-notes) { transition: none; }
+
+.dt__scroll {
+  min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0 24px 12px;
+  scrollbar-width: thin; scrollbar-color: var(--text-3) transparent;
+  /* content fades under the title and footer instead of a hard clip */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+}
+.dt-sec { padding: 12px 0 16px; }
+.dt-sec + .dt-sec { border-top: .5px solid var(--sep); }
+.dt-sec__head { display: flex; align-items: baseline; gap: 6px; margin: 0 0 8px; font-size: 13px; font-weight: 600; line-height: 16px; color: var(--panel-text-2); }   /* flush with the tiles, like ref 14 */
+.dt-sec__count { font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* tiles: deep translucent blue on the glass, white titles and pale blue subtitles (ref 14) */
+.dt-tile { border-radius: 22px; background: var(--dt-tile); box-shadow: var(--dt-tile-rim); transition: box-shadow 150ms var(--ease-snap); }
+.dt-tile, .dt-pill, .dt-round, .dt-list {
+  color: var(--dt-on-tile);
+  --text-1: var(--dt-on-tile);
+  --panel-text-2: var(--dt-on-tile-2);
+  --chip-bg: rgba(255, 255, 255, .14);
+  --sep: rgba(255, 255, 255, .22);
+  --tick-ring: rgba(255, 255, 255, .78);
+  --dt-minus: rgba(255, 255, 255, .20);
+}
+.dt-tile :is(textarea, input) { caret-color: var(--dt-on-tile); }
+.dt-tile :is(textarea, input)::placeholder { color: var(--dt-on-tile-2); }
+/* a done step: white disc, check in the tile's blue */
+.dt-step__tick { --c: #fff; }
+.dt-step__tick .tick__fill { background: #fff; }
+.dt-step__tick .tick__check { color: #0a4fb4; }
+/* chosen options: white with a blue glyph, like Control Center's on state (ref 13), so they stand out from the blue tiles */
+.dt :is(.dt-pill, .dt-round, .dt-list, .dt-cal__day)[aria-pressed="true"] {
+  background: var(--on-fill); color: var(--accent-fill); --text-1: var(--accent-fill);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 3px rgba(0, 20, 80, .18);
+}
+.dt-notes { padding: 12px 16px; }
+.dt-notes:focus-within { box-shadow: var(--dt-tile-rim), var(--dt-glow); }
+.dt-notes textarea { min-height: 54px; font-size: 13px; line-height: 18px; }
+
+
+/* footer, like ref 12: quiet Delete on the left, the Done pill on the right */
+.dt__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 24px; padding: 12px 0 24px;   /* lines up with the sections; bottom inset = side inset */
+  border-top: .5px solid var(--sep);
+}
+.dt__delete, .dt__done {
+  height: 36px; padding: 0 16px; border-radius: 18px;
+  font-size: 13px; font-weight: 500;
+  transition: transform 140ms var(--ease-snap), background-color 150ms var(--ease-snap);
+}
+.dt__delete { color: var(--dt-red); background: var(--dt-chip); box-shadow: inset 0 1px 0 rgba(255,255,255,.30), inset 0 0 0 .5px rgba(255,255,255,.16); }
+.dt__delete:hover { background: color-mix(in srgb, var(--dt-chip), var(--red) 12%); }
+.dt__done { padding: 0 20px; font-weight: 600; background: var(--accent-fill); color: var(--on-accent); box-shadow: inset 0 1px 0 rgba(255,255,255,.28), var(--done-shadow); }
+.dt__delete:active, .dt__done:active { transform: scale(.97); }
+
+/* Up Next opens details too: the whole module is the button, its tick stays on top */
+.cc-next__open { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+.cc-next__tick { z-index: 2; }
+.cc-next:not([data-id]) .cc-next__open { display: none; }
+
+/* narrow or short windows: the sheet fills the screen less a 16px gutter */
+@media (max-width: 1023px), (max-height: 619px) {
+  .dt { top: 16px; bottom: auto; left: 16px; right: 16px; width: auto; max-width: 460px; margin: 0 auto; }
+  /* ends above the Dock rather than leaving a sliver of it showing underneath */
+  .dt__glass { height: auto; max-height: calc(100vh - 104px); max-height: calc(100dvh - 104px); }
+}
+/* phones and touch: every control gets a 44x44 hit area; small glyphs keep their size */
+@media (max-width: 640px), (pointer: coarse) {
+  .dt-step__tick::before, .dt-minus::before { content: ""; position: absolute; inset: -11px; }
+  .dt-minus { position: relative; }
+  .dt-step, .dt-step-add { min-height: 48px; }
+  .dt-step__text, .dt-step-add__input { height: 44px; padding-block: 0; }
+  .dt-round { width: 44px; height: 44px; }
+  .dt-pill { height: 44px; padding: 0 16px; border-radius: 22px; }
+  .dt__delete, .dt__done { height: 44px; border-radius: 22px; }
+  .dt__delete { padding: 0 18px; }
+  .dt__done { min-width: 88px; padding: 0 24px; }
+  /* date picker: seven 44px columns (308px, fits a 375px phone), rows 44px apart; the 34px circles and 26px arrows keep their size */
+  .dt-cal { max-width: 332px; padding-inline: 0; }
+  .dt-cal__head { gap: 18px; margin: 0 12px 8px 18px; }
+  .dt-cal__nav, .dt-cal__day { position: relative; }
+  .dt-cal__nav::before, .dt-cal__day::before { content: ""; position: absolute; inset: calc((100% - 44px) / 2); }
+  .dt-cal__grid { grid-template-columns: repeat(7, 44px); justify-content: center; row-gap: 10px; }
+}
+@media (max-width: 640px) {
+  .dt__head { padding: 16px 16px 8px; }
+  .dt__scroll { padding: 0 16px 12px; }
+  .dt__foot { margin: 0 16px; padding: 12px 0 16px; }
+  .dt__glass { max-height: calc(100vh - 80px); max-height: calc(100dvh - 80px); }
+}
+/* phones: 16px text so the page doesn't zoom when a field takes focus */
+@media (pointer: coarse) {
+  .dt-notes textarea, .dt-step__text, .dt-step-add__input { font-size: 16px; line-height: 21px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .dt__glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(246, 246, 248); }
+  :root { --dt-tile: rgb(26, 84, 176); --dt-tile-hover: rgb(18, 76, 168); --dt-chip: rgba(0, 0, 0, .06); }
+}
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: dark) {
+  .dt__glass { background: rgb(40, 40, 44); }
+  :root { --dt-tile: rgb(30, 62, 118); --dt-tile-hover: rgb(36, 72, 136); --dt-chip: rgba(255, 255, 255, .10); }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .dt__glass { background: rgb(246, 246, 248); }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  @media (prefers-color-scheme: dark) { .dt__glass { background: rgb(40, 40, 44); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dt__glass { transform: none; filter: none; }
+  .dt::backdrop, .al::backdrop { transition-duration: 150ms; }
+}
+
+
+
+/* the Dock fits however many lists there are (--dock-n is set from the list count) */
+
+/* ============================================================
+   Main screen on phones and touch: 44x44 hit areas (the Details
+   and Edit Lists approach). Small glyphs keep their size; the hit
+   area grows around them and never reaches a neighbour's.
+   ============================================================ */
+@media (max-width: 640px), (pointer: coarse) {
+  .roundbtn { position: relative; }
+  .tick::before, .roundbtn::before, .tile__tick::before, .cc-next__tick::before {
+    content: ""; position: absolute; inset: calc((100% - 44px) / 2);
+  }
+  .navrow { height: 44px; }
+  .spot__input { height: 44px; }
+  /* search: a 44px-tall field, its 36px pill drawn inside */
+  .search { position: relative; height: 44px; margin-bottom: 6px; background: none; box-shadow: none; isolation: isolate; }
+  .search::before { content: ""; position: absolute; inset: 4px 0; z-index: -1; border-radius: 18px; background: var(--field-bg); box-shadow: inset 0 0 0 .5px var(--sep), 0 .5px 1px rgba(0,0,0,.04); }
+  .search .ic { font-size: 16px; }
+  /* add panel: the add row and each chip are 44px tall; chips draw a 32px pill inside, rows stack without overlap */
+  .spot-hit { height: 44px; }
+  .chips { gap: 0 6px; }
+  .chips .chip, .chips .chip:hover, .chips .chip[aria-pressed="true"] { background: none; }
+  .chip { position: relative; height: 44px; isolation: isolate; }
+  .chip::before { content: ""; position: absolute; inset: 6px 0; z-index: -1; border-radius: 16px; background: var(--chip-bg); transition: background-color 150ms var(--ease-snap); }
+  .chip:hover::before { background: var(--chip-hover); }
+  .chip[aria-pressed="true"]::before { background: var(--accent-fill); }
+  /* New Task and Undo: 28px pills with a 44px hit area */
+  .pillbtn, .banner__undo { position: relative; }
+  .pillbtn::before, .banner__undo::before { content: ""; position: absolute; inset: -8px 0; }
+}
+@media (max-width: 640px) {
+  /* Dock: each item gets a 44px-wide slot (narrower only when there are too many lists to fit), the icon sits inside */
+  .dock { gap: 0; padding-inline: 3px; }
+  .dock__item { --hit: min(44px, calc((100vw - 32px) / var(--dock-n, 8))); width: var(--hit); display: flex; justify-content: center; }
+  .dock__btn::before { content: ""; position: absolute; left: 50%; top: 50%; width: var(--hit); height: 44px; transform: translate(-50%, -50%); }
+  .dock .app-icon, .dock .trash { width: min(36px, calc(var(--hit) - 6px)); }
+}
+/* phones and touch: 16px text so the page doesn't zoom when a field takes focus */
+@media (max-width: 640px), (pointer: coarse) {
+  .search__input, .chip-date__input { font-size: 16px; }
+}
+
+/* ============================================================
+   TV Ratings: the show page (Series Graph refs 1-2) in the sheet,
+   rating stats (ref 3) as Control Center tiles, the rating sheet
+   (IMDb ref 8). Content rules: Claude/standards/tv-ratings.md.
+   ============================================================ */
+:root {
+  /* score bands (standard s3, Series Graph's default preset): exact hex; text colour per band as the standard says
+     (near-black on blue, green, yellow, orange and red; white only on dark green and purple) */
+  --band-ac: #1DA1F2;   /* Absolute Cinema 9.7-10, near-black text (6.4:1) */
+  --band-aw: #186A3B;   /* Awesome 9.0-9.6, white text */
+  --band-gr: #28B463;   /* Great 8.0-8.9, dark text */
+  --band-go: #F4D03F;   /* Good 7.0-7.9, dark text */
+  --band-av: #F39C12;   /* Average 6.0-6.9, dark text */
+  --band-bd: #E74C3C;   /* Bad 4.1-5.9, near-black text (4.8:1) */
+  --band-ga: #633974;   /* Garbage 0-4.0, white text */
+  --band-ink: #141414;   /* near-black: #1d1d1f on the red band is only 4.41:1, this is 4.8:1 (blue 6.4:1) */
+  --unrated-bg: #c4c4ca;                 /* grey "?" cells (ref 2): dark ? at 6:1 */
+  --unrated-fg: #3a3a3c;
+  --star: #f5c518;
+
+  /* Dock sections (icons and dots only, never text) */
+  --c-shows: #5856d6;
+  --c-diary: #ff9500;
+  --c-stats: #34c759;
+  --c-search: #30b0c7;
+
+  /* segmented control, like macOS */
+  --seg-bg: rgba(0, 0, 0, .06);
+  --seg-on: rgba(255, 255, 255, .96);
+  --seg-shadow: 0 1px 2.5px rgba(0, 0, 0, .16), 0 0 0 .5px rgba(0, 0, 0, .05);
+  --pin-bg: rgb(226, 233, 246);          /* the pinned episode column while the grid scrolls sideways */
+  --ph-bg: linear-gradient(160deg, #8b98b3, #59678a);   /* poster or still that didn't load */
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --unrated-bg: #aeaeb2;               /* still light grey, like ref 2's dark screen: dark ? at 7:1 */
+    --unrated-fg: #1c1c1e;
+    --c-shows: #8e8cff;
+    --c-diary: #ff9f0a;
+    --c-stats: #30d158;
+    --c-search: #40c8e0;
+    --seg-bg: rgba(255, 255, 255, .08);
+    --seg-on: rgba(255, 255, 255, .22);
+    --seg-shadow: 0 1px 3px rgba(0, 0, 0, .3), inset 0 .5px 0 rgba(255, 255, 255, .2);
+    --pin-bg: rgb(26, 30, 48);
+    --ph-bg: linear-gradient(160deg, #3c4358, #222838);
+  }
+}
+
+/* ---------- scene sizes ---------- */
+.cc { grid-template-rows: repeat(8, 63px) auto; }
+@media (min-width: 641px) { .sheet { grid-template-columns: clamp(208px, 23.5%, 248px) minmax(0, 1fr); } }
+/* big screens (1920 x 1080): the sheet takes more of the width; the wallpaper still shows all round */
+@media (min-width: 1680px) and (min-height: 1000px) {
+  .sheet { width: min(1440px, calc(var(--stage) - 2 * var(--edge))); grid-template-columns: 248px minmax(0, 1fr); }
+}
+
+/* ---------- score chips (one band lookup feeds every chip) ---------- */
+.score {
+  display: inline-grid; place-items: center;
+  flex: none;
+  min-width: 36px; height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--b, var(--unrated-bg));
+  color: var(--bf, var(--unrated-fg));
+  font-size: 12px; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 .5px 1.5px rgba(0,0,0,.18);
+}
+/* your own season and show scores are capsules with a light ring; episode scores and averages are not */
+.score--own { border-radius: 999px; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.62), 0 1px 2px rgba(0,0,0,.2); }
+
+/* ---------- sidebar: the library ---------- */
+.side { display: flex; flex-direction: column; }
+.side__head { display: flex; align-items: baseline; gap: 6px; margin: 12px 10px 4px; font-size: 11px; font-weight: 600; letter-spacing: .01em; color: var(--text-2); }
+.side__head:first-of-type { margin-top: 4px; }
+.lib-group { margin: 0; }
+.navrow.lib { height: 54px; gap: 10px; padding: 0 8px 0 7px; }
+.lib__poster, .ph { position: relative; overflow: hidden; background: var(--ph-bg); }
+.lib__poster {
+  width: 30px; height: 45px; flex: none;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.24), inset 0 0 0 .5px rgba(255,255,255,.18);
+}
+.ph > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph__txt .ic { width: 36px; height: 36px; stroke-width: 1.5; opacity: .9; }
+.ph__txt { position: absolute; inset: 0; display: grid; place-items: center; padding: 4px; text-align: center; color: rgba(255,255,255,.92); font-weight: 700; font-size: 11px; line-height: 1.15; }
+.lib .navrow__label { display: flex; flex-direction: column; gap: 2px; }
+.lib__title, .lib__meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lib__title { font-size: 13px; font-weight: 600; }
+.lib__meta { font-size: 12px; color: var(--text-2); }
+.lib .score { min-width: 36px; }
+.lib-empty { margin: 8px 10px; font-size: 12px; color: var(--text-2); }
+.side__foot { margin: auto 10px 2px; padding-top: 14px; font-size: 11px; line-height: 14px; color: var(--text-2); }
+
+/* ---------- main pane: the show page ---------- */
+.pane { container-type: inline-size; container-name: pane; }
+.pane__scroll { padding: 0; }
+.show {
+  --info-w: 168px;
+  --gap-x: 24px;
+  --cell-w: 58px;
+  --cell-h: 27px;
+  --cell-gap: 4px;
+  --cell-fs: 15px;
+  --cell-r: 5px;
+  --top-still: 16 / 9;
+  display: grid;
+  grid-template-columns: var(--info-w) minmax(0, 1fr);
+  grid-template-areas: "info bar" "info grid" "top top";
+  column-gap: var(--gap-x);
+  row-gap: 12px;
+  align-items: start;
+  padding: 20px 20px 18px;
+}
+
+.show__state { grid-column: 1 / -1; margin: 0; padding: 40px 24px; text-align: center; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+/* content unavailable (error, nothing to show): symbol, title, secondary line, button, centred in the pane */
+.show__state--msg { min-height: 520px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.show__state .ua__ic { width: 52px; height: 52px; margin-bottom: 8px; color: var(--text-2); fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.ua__title { margin: 0; font-size: 20px; line-height: 25px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-1); }
+.ua__text { margin: 0; max-width: 340px; font-size: 13px; line-height: 18px; color: var(--text-2); }
+.show__state .pillbtn { margin-top: 14px; }
+/* loading: the page's own layout as faint glass; only opacity pulses (nothing under reduced motion) */
+.sk { background: color-mix(in srgb, var(--text-1) 10%, transparent); border-radius: 6px; box-shadow: none; }
+.sk-pulse { animation: show-wait 1.2s ease-in-out infinite alternate; }
+@media (prefers-reduced-transparency: reduce) { .sk { background: color-mix(in srgb, var(--text-1) 17%, transparent); } }   /* on the solid sheet 10% all but vanished in light */
+@keyframes show-wait { from { opacity: .5; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sk-pulse { animation: none; } }
+.sk-line { display: block; height: 14px; border-radius: 7px; }
+.sk-title { height: 22px; width: 72%; margin-top: 14px; }
+.sk-meta { height: 12px; width: 48%; margin-top: 9px; }
+.sk-score { width: 64px; height: 64px; border-radius: 50%; margin-top: 18px; }
+.sk-seg { width: 168px; height: 28px; border-radius: 14px; }
+.sk-grid { display: grid; grid-template-columns: 22px repeat(5, var(--cell-w)); gap: var(--cell-gap); }
+.sk-grid .sk { height: var(--cell-h); border-radius: var(--cell-r); }
+.sk-grid .sk-lab { height: 12px; align-self: center; border-radius: 6px; }
+.show--skel .show__bar { align-items: center; }
+@container pane (max-width: 699px) { .show__state--msg { min-height: 380px; } .ua__title { font-size: 17px; line-height: 22px; } .show--skel .show__poster { grid-row: span 3; } }
+
+/* left column (refs 1-2): poster, title, years, your score, community score, Rate */
+.show__info { grid-area: info; display: flex; flex-direction: column; min-width: 0; }
+.show__poster {
+  width: 100%; aspect-ratio: 2 / 3;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(10, 30, 80, .26), 0 1px 3px rgba(0,0,0,.2), inset 0 0 0 .5px rgba(255,255,255,.2);
+}
+.show__poster .ph__txt { font-size: 22px; }
+.show__text { min-width: 0; }
+.show__title { margin: 14px 0 0; font-size: 22px; font-weight: 700; line-height: 26px; letter-spacing: -0.015em; }
+.show__meta { margin: 3px 0 0; font-size: 12px; color: var(--text-2); }
+.show__scores { margin: 14px 0 0; display: grid; gap: 12px; }
+.kicker { display: block; font-size: 11px; font-weight: 600; letter-spacing: .01em; color: var(--text-2); }
+.own { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.score--xl { height: 44px; min-width: 66px; padding: 0 12px; font-size: 24px; letter-spacing: -0.02em; }
+.own__band { font-size: 13px; font-weight: 600; line-height: 16px; }
+.own__state { font-size: 12px; line-height: 15px; color: var(--text-2); }
+.avgline { margin-top: 7px; font-size: 12px; line-height: 16px; color: var(--text-2); }
+/* averages: plain number with a band-coloured underline (the AVG row in refs 1-2), never a filled chip */
+.avgnum { color: var(--text-1); font-weight: 700; font-variant-numeric: tabular-nums; padding-bottom: 1px; box-shadow: inset 0 -2.5px 0 var(--b, transparent); }
+.comm { display: flex; align-items: baseline; gap: 6px; margin-top: 5px; }
+.comm .ic { width: 16px; height: 16px; color: var(--star); align-self: center; }
+.comm__num { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.comm__src { font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.rate-btn { margin-top: 16px; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 0 16px 0 13px; }
+.rate-btn .ic { font-size: 14px; stroke-width: 2; }
+
+/* toolbar over the grid: Yours / Community, then the band legend (ref 1) */
+.show__bar { grid-area: bar; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; min-width: 0; contain: inline-size; }   /* never widens the grid's column */
+.seg { display: inline-flex; padding: 2px; border-radius: 9px; background: var(--seg-bg); box-shadow: inset 0 0 0 .5px var(--sep); }
+.seg__btn {
+  position: relative;
+  height: 24px; padding: 0 14px;
+  border-radius: 7px;
+  font-size: 12px; font-weight: 500;
+  color: var(--text-1);
+  transition: background-color 150ms var(--ease-snap);
+}
+.seg__btn[aria-checked="true"] { background: var(--seg-on); box-shadow: var(--seg-shadow); font-weight: 600; }
+.bar__note { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.legend { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 3px 9px; margin: 0; padding: 0; list-style: none; font-size: 11px; line-height: 15px; color: var(--text-2); }
+.legend li { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.legend i { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--b); box-shadow: inset 0 0 0 .5px rgba(0,0,0,.12); }
+.legend .is-q i { border-radius: 2.5px; background: var(--unrated-bg); }
+
+/* the grid: seasons are columns, episodes are rows (standard s2) */
+.rg-wrap { grid-area: grid; min-width: 0; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--text-3) transparent; }
+.rg { border-collapse: separate; border-spacing: var(--cell-gap); margin: calc(-1 * var(--cell-gap)); font-variant-numeric: tabular-nums; }
+.rg th { padding: 0; font-size: 11px; font-weight: 600; color: var(--text-2); white-space: nowrap; }
+.rg thead th { height: 18px; text-align: center; vertical-align: bottom; }
+.rg tbody th, .rg tfoot th { padding-right: 3px; text-align: right; }
+.rg td { padding: 0; }
+.cell {
+  position: relative;
+  display: grid; place-items: center;
+  width: var(--cell-w); height: var(--cell-h);
+  border-radius: var(--cell-r);
+  background: var(--b);
+  color: var(--bf);
+  font-size: var(--cell-fs); font-weight: 600; letter-spacing: -0.01em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 .5px 1.5px rgba(0,0,0,.16);
+  transition: transform 140ms var(--ease-snap), box-shadow 150ms var(--ease-snap);
+}
+.cell:hover { transform: scale(1.06); box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 3px 8px rgba(0,0,0,.22); z-index: 1; }
+.cell:active { transform: scale(.97); }
+.cell--q { --b: var(--unrated-bg); --bf: var(--unrated-fg); }
+.cell.score--own { border-radius: 999px; }
+.cell.is-sel { box-shadow: 0 0 0 2px var(--sheet-bg), 0 0 0 4px var(--accent); }
+.rg tfoot tr:first-child > * { padding-top: 6px; }
+.avg { display: block; padding: 0 0 3px; text-align: center; font-size: var(--cell-fs); font-weight: 700; line-height: 22px; color: var(--text-1); box-shadow: inset 0 -3px 0 var(--b, transparent); border-radius: 1px; }
+.avg.is-q { color: var(--text-2); font-weight: 600; box-shadow: none; }
+.rg-n td { font-size: 11px; line-height: 14px; color: var(--text-2); text-align: center; white-space: nowrap; }
+.rg-own th { vertical-align: middle; }
+.rg-own .cell { height: calc(var(--cell-h) + 2px); }
+.rg-note { margin: 9px 0 0; font-size: 11px; line-height: 15px; color: var(--text-2); contain: inline-size; }   /* wraps to the grid's width */
+.rg-note b { color: var(--text-1); font-weight: 600; }
+.show--comm .rg-own { display: none; }
+
+@container pane (min-width: 700px) {
+  .rg-wrap { overflow: visible; }
+  .rg thead th { position: sticky; top: 0; z-index: 2; }
+  .show.is-stuck .rg thead th { background: var(--pin-bg); box-shadow: 0 0 0 calc(var(--cell-gap) / 2 + .5px) var(--pin-bg), 0 6px 8px -4px var(--pin-bg); }
+}
+
+/* Top rated (ref 1): stills with the rank and the score badge */
+.top { grid-area: top; min-width: 0; }
+.top__head { margin: 0; display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 700; line-height: 18px; }
+.top__head .ic { font-size: 14px; color: var(--text-2); stroke-width: 2.2; }
+.top__sub { margin: 1px 0 10px; font-size: 11px; color: var(--text-2); }
+.top__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.top__btn { display: block; width: 100%; text-align: left; border-radius: 9px; }
+.top__still { display: block; aspect-ratio: var(--top-still); border-radius: 9px; box-shadow: 0 3px 10px rgba(10, 30, 80, .18), inset 0 0 0 .5px rgba(255,255,255,.18); }
+.top__still::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0) 58%); pointer-events: none; }
+.top__rank { position: absolute; left: 9px; bottom: 1px; z-index: 1; font-size: 26px; font-weight: 800; line-height: 32px; color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,.55); }
+.top__still .score { position: absolute; top: 6px; right: 6px; z-index: 1; height: 20px; min-width: 34px; font-size: 11px; }
+.top__title { display: block; margin-top: 5px; font-size: 12px; font-weight: 600; line-height: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top__ep { display: block; font-size: 11px; line-height: 14px; color: var(--text-2); }
+.top__btn:hover .top__still { transform: translateY(-1px); }
+.top__still { transition: transform 160ms var(--ease-snap); }
+
+/* 1920 x 1080: bigger cells and poster, the stills column wider */
+@container pane (min-width: 1000px) {
+  .show { --info-w: 244px; --gap-x: 40px; --cell-w: 80px; --cell-h: 37px; --cell-gap: 6px; --cell-fs: 18px; --cell-r: 6px; padding: 28px 30px 22px; row-gap: 16px; }
+  .show__title { font-size: 26px; line-height: 31px; }
+  .score--xl { height: 50px; min-width: 76px; font-size: 28px; }
+  .rg th { font-size: 12px; }
+  .rg thead th { height: 20px; }
+  .rg-n td { font-size: 12px; }
+  .top__head { font-size: 17px; line-height: 21px; }
+  .top__title { font-size: 13px; }
+  .legend { font-size: 12px; gap: 3px 12px; }
+  .seg__btn { height: 26px; font-size: 13px; }
+}
+/* narrow pane (the stacked window, phones): poster beside the title, then the bar, the grid and a row of stills */
+@container pane (max-width: 699px) {
+  .show {
+    --cell-w: 54px; --cell-h: 34px; --cell-gap: 4px; --top-still: 16 / 9;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "info" "bar" "grid" "top";
+    row-gap: 16px;
+    padding: 16px 14px 18px;
+  }
+  .show__info { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: 14px; align-items: start; }
+  .show__poster { grid-row: span 2; border-radius: 10px; }
+  .show__title { margin-top: 0; font-size: 20px; line-height: 24px; }
+  .show__scores { margin-top: 10px; gap: 10px; }
+  .score--xl { height: 40px; min-width: 60px; font-size: 22px; }
+  .rate-btn { grid-column: 2; justify-self: start; margin-top: 12px; }
+  .rg-wrap { margin: 0 -14px; padding: 0 14px; overflow: auto; max-height: calc(100dvh - 150px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overscroll-behavior-x: contain; }
+  /* long shows: the grid scrolls inside its box, so the season labels stay pinned at its top (standard s2.5) */
+  .rg thead th { position: sticky; top: 0; z-index: 2; background: var(--pin-bg); box-shadow: 0 0 0 calc(var(--cell-gap) / 2 + .5px) var(--pin-bg); }
+  .rg-wrap .rg thead th:first-child { z-index: 3; }   /* the corner sits over the pinned episode labels as they scroll up */
+  /* the episode column stays put while the seasons scroll sideways (standard s2.4) */
+  .rg tbody th, .rg tfoot th, .rg thead th:first-child { position: sticky; left: 0; z-index: 2; }
+  .rg-wrap.is-scrolled :is(.rg tbody th, .rg tfoot th, .rg thead th:first-child) { background: var(--pin-bg); box-shadow: 0 0 0 calc(var(--cell-gap) / 2 + .5px) var(--pin-bg), 8px 0 8px -2px var(--pin-bg); }
+  .top__list { grid-auto-flow: column; grid-auto-columns: 190px; overflow-x: auto; overscroll-behavior-x: contain; margin: 0 -14px; padding: 2px 14px 6px; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .top__list > li { scroll-snap-align: start; }
+}
+
+/* ---------- Control Center: your rating stats (ref 3) ---------- */
+.cc-stat:active { transform: none; }
+.cc-count {
+  grid-column: 1 / -1;
+  border-radius: 999px;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center;
+  padding: 0 18px;
+}
+.cc-count__item { min-width: 0; }
+.cc-count__num { display: block; font-size: 20px; font-weight: 700; line-height: 23px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.cc-count__lab { display: block; font-size: 11px; font-weight: 500; line-height: 13px; color: var(--cc-text-2); white-space: nowrap; }
+
+.cc-dist {
+  --bar-max: 130px;
+  grid-column: 1 / -1; grid-row: span 3;
+  border-radius: 30px;
+  padding: 13px 16px 10px;
+  display: flex; flex-direction: column;
+}
+.cc-dist__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.cc-dist__title { font-size: 13px; font-weight: 600; }
+.cc-dist__sub { font-size: 12px; color: var(--cc-text-2); white-space: nowrap; }
+.bars { flex: 1; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 5px; align-items: end; margin: 6px 0 0; padding: 0; list-style: none; }
+.bar { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.bar__pct { font-size: 10px; font-weight: 600; line-height: 12px; color: var(--cc-text-2); margin-bottom: 3px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bar__fill { width: 100%; height: max(3px, calc(var(--p) * var(--bar-max))); border-radius: 4px 4px 2px 2px; overflow: hidden; display: flex; flex-direction: column-reverse; background: var(--cc-track); }
+.bar__seg { flex: var(--n) 0 0; background: var(--b); }
+.bar__x { margin-top: 4px; font-size: 11px; font-weight: 500; line-height: 13px; color: var(--cc-text-2); font-variant-numeric: tabular-nums; }
+
+.cc-ep {
+  grid-column: span 2; grid-row: span 2;
+  border-radius: 30px;
+  padding: 13px 13px 13px 14px;
+  display: flex; flex-direction: column;
+  text-align: left;
+  min-width: 0;
+}
+.cc-ep__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+.cc-ep__label { margin-top: 1px; font-size: 11px; font-weight: 600; letter-spacing: .01em; color: var(--cc-text-2); }
+.cc-ep .score { height: 30px; min-width: 46px; border-radius: 8px; font-size: 15px; }
+.cc-ep__title { margin-top: auto; font-size: 13px; font-weight: 600; line-height: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cc-ep__meta + .cc-ep__meta { margin-top: 0; }
+.cc-ep__meta { margin-top: 2px; font-size: 12px; color: var(--cc-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cc-show { grid-column: 1 / -1; }
+/* Export / Import (the Free My TV row shape plus kind): its own row under the sort buttons, shown even when nothing is rated */
+.cc-data { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.cc-data .cc-pill { grid-column: auto; height: 63px; }
+/* Stats in the Dock when Control Center is already on screen: a short lift so the click visibly lands */
+.cc.is-flash > :is(.cc-mod, .cc-sort, .cc-data) { animation: cc-flash 520ms var(--ease-snap); }
+@keyframes cc-flash { 45% { transform: translateY(-4px) scale(1.02); } }
+@media (prefers-reduced-motion: reduce) { .cc.is-flash > :is(.cc-mod, .cc-sort, .cc-data) { animation: none; } }
+.cc-show .cc-pill__icon { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; background: var(--b); color: var(--bf); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.62); font-variant-numeric: tabular-nums; }
+.cc-pill__title, .cc-pill__sub { display: block; }
+.cc-sort__label { font-variant-numeric: tabular-nums; }
+/* nothing rated yet: one calm first-step tile instead of the six stat tiles; the sort buttons stay below it */
+.cc-first { display: none; grid-column: 1 / -1; grid-row: span 2; border-radius: 30px; padding: 13px 16px; flex-direction: column; text-align: left; }
+.cc-first__icon { width: 32px; height: 32px; font-size: 17px; }
+.cc-first__text { margin-top: auto; min-width: 0; }
+.cc-first__title { display: block; font-size: 13px; font-weight: 600; line-height: 16px; }
+.cc-first__sub { display: block; margin-top: 2px; font-size: 12px; line-height: 15px; color: var(--cc-text-2); text-wrap: balance; }
+.cc.is-empty { grid-template-rows: repeat(2, var(--cell, 63px)) auto; }
+.cc.is-empty > :is(.cc-stat:not(.cc-first), .cc-ep, .cc-show) { display: none; }
+.cc.is-empty > .cc-first { display: flex; }
+
+/* ---------- Dock icons (Shows, Diary, Stats, Search) ---------- */
+.app-icon--shows { --c: var(--c-shows); }
+.app-icon--diary { --c: var(--c-diary); }
+.app-icon--stats { --c: var(--c-stats); }
+.app-icon--search { --c: var(--c-search); }
+.app-icon .g-cut { fill: color-mix(in srgb, var(--c) 72%, #000); }
+.app-icon .g-line { stroke-width: 3.4; }
+@media (prefers-color-scheme: dark) {
+  .app-icon .g-cut { fill: #1b1c22; }
+}
+
+/* ---------- the rating sheet (IMDb ref 8): big number, 0-10 quick picks, fine-tune, Remove rating ---------- */
+.rate { --dt-bg: var(--panel-bg); --dt-chip: var(--chip-bg); top: 64px; bottom: auto; left: calc((100vw - 300px) / 2 - 200px); width: 400px; }
+.rate .dt__glass { height: auto; grid-template-rows: auto auto auto; }
+.rate__top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 16px 16px 0; }
+.rate__close {
+  justify-self: start;
+  height: 28px; padding: 0 14px;
+  border-radius: 14px;
+  font-size: 13px; font-weight: 600;
+  background: var(--dt-chip);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.30), inset 0 0 0 .5px rgba(255,255,255,.16);
+  transition: transform 140ms var(--ease-snap), background-color 150ms var(--ease-snap);
+}
+.rate__close:hover { background: var(--chip-hover); }
+.rate__close:active { transform: scale(.97); }
+.rate__ctx { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.rate .dt__scroll { padding: 0 24px 6px; -webkit-mask-image: none; mask-image: none; }
+/* hero (IMDb ref 8): the current value as one large, bare, thin numeral; the band colour shows in the dot by the band name and the filled pick */
+.rate__hero { display: grid; place-items: center; margin: 6px 0 0; }
+.rate__num { font-size: 148px; font-weight: 200; line-height: .9; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; color: var(--text-1); }
+.rate__hero.is-unrated .rate__num { color: var(--text-2); }
+.rate__q { margin: 12px 0 0; text-align: center; font-size: 15px; font-weight: 600; line-height: 19px; }
+.rate__band { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 4px 0 0; font-size: 13px; line-height: 16px; color: var(--panel-text-2); }
+.rate__band.has-dot::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--b); box-shadow: 0 0 0 .5px rgba(0,0,0,.25); }
+/* 0-10 quick picks: a calm row of round choices; the chosen one fills with its band colour */
+.rate__picks { display: flex; justify-content: center; gap: 2px; margin: 14px 0 0; }
+.pick {
+  position: relative;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--sep);
+  transition: transform 140ms var(--ease-snap), background-color 150ms var(--ease-snap), box-shadow 150ms var(--ease-snap);
+}
+.pick:hover { background: var(--dt-chip); }
+.pick:active { transform: scale(.94); }
+.pick.is-near { box-shadow: inset 0 0 0 2.5px var(--b); }   /* e.g. 8.7 sits on the 8 */
+.pick[aria-checked="true"] { background: var(--b); color: var(--bf); font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 2px 6px rgba(0,0,0,.2); }
+.rate__fine { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; }
+.fine__btn {
+  position: relative;
+  width: 30px; height: 30px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  font-size: 14px;
+  background: var(--dt-chip);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 0 0 .5px rgba(255,255,255,.14);
+  transition: transform 140ms var(--ease-snap);
+}
+.fine__btn .ic { stroke-width: 2.4; }
+.fine__btn:active { transform: scale(.97); }
+/* the slider's track is the band scale itself (hard stops at the standard's thresholds) */
+.fine__range {
+  flex: 1; min-width: 0; height: 30px; margin: 0;
+  -webkit-appearance: none; appearance: none; background: none; cursor: default;
+}
+.fine__range::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: var(--band-track); box-shadow: inset 0 0 0 .5px rgba(0,0,0,.12); }
+.fine__range::-moz-range-track { height: 6px; border-radius: 3px; background: var(--band-track); }
+.fine__range::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -8px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.3), 0 0 0 .5px rgba(0,0,0,.08); }
+.fine__range::-moz-range-thumb { width: 22px; height: 22px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+.rate { --band-track: linear-gradient(to right, var(--band-ga) 0 40.5%, var(--band-bd) 40.5% 59.5%, var(--band-av) 59.5% 69.5%, var(--band-go) 69.5% 79.5%, var(--band-gr) 79.5% 89.5%, var(--band-aw) 89.5% 96.5%, var(--band-ac) 96.5% 100%); }
+.fine__field {
+  width: 58px; height: 30px; flex: none;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;
+  background: var(--field-bg);
+  box-shadow: inset 0 0 0 .5px var(--sep);
+}
+.fine__field:focus { box-shadow: inset 0 0 0 .5px var(--sep), var(--dt-glow); }
+.rate__facts { margin: 14px 0 0; display: grid; gap: 4px; font-size: 12px; line-height: 16px; color: var(--panel-text-2); text-align: center; }
+.rate__facts .avgnum, .rate__facts b { color: var(--text-1); }
+.rate__facts .ic { display: inline-block; vertical-align: -2px; width: 13px; height: 13px; color: var(--star); }
+.rate .dt__foot { margin: 0 24px; padding: 12px 0 20px; }
+.rate__hint { font-size: 12px; color: var(--panel-text-2); text-align: right; }
+.hint--touch { display: none; }
+@media (pointer: coarse) { .hint--key { display: none; } .hint--touch { display: inline; } }
+.rate__msg { min-height: 16px; margin: 6px 0 0; text-align: center; font-size: 12px; line-height: 16px; color: var(--panel-text-2); }
+.rate__msg.is-warn { color: var(--text-1); }
+.rate__msg.is-draft { color: var(--panel-text-2); }
+.dt__delete:disabled { opacity: .45; }
+@media (prefers-color-scheme: dark) { .rate .dt__delete { color: color-mix(in srgb, var(--red) 40%, #fff); } }   /* 4.5:1+ on the opaque panel over any backdrop */
+@media (max-width: 1023px), (max-height: 619px) {
+  .rate { top: 16px; left: 16px; right: 16px; width: auto; max-width: 420px; margin: 0 auto; }
+  /* the sheet sits at the bottom (or the top) so the tapped cell stays in view; placed by app.js */
+  .rate[data-pos="bottom"] { top: auto; bottom: 16px; }
+  .rate[data-pos="bottom"] .dt__glass { transform-origin: 50% 100%; }
+  .rate[data-pos="top"] .dt__glass { transform-origin: 50% 0; }
+}
+@media (max-width: 640px), (pointer: coarse) {
+  .rate__num { font-size: 124px; }
+  /* phones: ONE row of 0-10 built as one control; the whole 44px-tall row is the hit area, a tap or drag picks the nearest mark */
+  .rate__picks { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 0; max-width: none; height: 44px; margin: 8px 0 0; touch-action: none; cursor: pointer; border-radius: 22px; -webkit-user-select: none; user-select: none; }
+  .rate__picks:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 1px; }
+  .pick, .pick[aria-checked="true"], .pick.is-near { width: auto; height: 44px; border-radius: 0; font-size: 14px; background: none; box-shadow: none; pointer-events: none; isolation: isolate; }
+  .pick:hover { background: none; }
+  .pick:active { transform: none; }
+  .pick::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--sep); transition: transform 120ms var(--ease-snap), background-color 120ms var(--ease-snap); }
+  .pick.is-near::before { box-shadow: inset 0 0 0 2.5px var(--b); }
+  .pick[aria-checked="true"]::before { background: var(--b); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 2px 6px rgba(0,0,0,.2); }
+  .pick.is-hot::before { background: var(--dt-chip); box-shadow: inset 0 0 0 2px var(--text-1); transform: scale(1.22); }
+  .pick.is-hot[aria-checked="true"]::before { background: var(--b); }
+  .fine__btn::before { content: ""; position: absolute; inset: -7px; }
+  .fine__range { height: 44px; }
+  .fine__field { height: 40px; font-size: 16px; }
+  .rate__close { position: relative; }
+  .rate__close::before { content: ""; position: absolute; inset: -8px 0; }
+  .seg__btn::before { content: ""; position: absolute; inset: -10px 0; }
+  .cell::before { content: ""; position: absolute; inset: -5px -2px; }
+}
+@media (max-width: 640px) {
+  .rate .dt__scroll { padding: 0 16px 6px; }
+  .rate .dt__foot { margin: 0 16px; padding: 12px 0 16px; }
+}
+
+/* ---------- phones (390 x 844): the Tahoe narrow stack ---------- */
+@media (max-width: 640px) {
+  /* the library becomes a strip of posters with your score on the corner (standard s4.1) */
+  .side { padding: 8px 0 12px; }
+  .side .search { margin: 0 14px 4px; }
+  .lib-strip { display: flex; gap: 2px; overflow-x: auto; overscroll-behavior-x: contain; padding: 4px 10px 2px; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .side__head { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; }
+  .side .lib-group { display: contents; }
+  .lib-group > li { flex: none; scroll-snap-align: start; }
+  .navrow.lib { position: relative; width: 80px; height: auto; flex-direction: column; align-items: stretch; gap: 5px; padding: 4px; border-radius: 12px; }
+  .lib__poster { width: 72px; height: 108px; border-radius: 8px; }
+  .lib .navrow__label { text-align: center; }
+  .lib__title { font-size: 12px; }
+  .lib__meta { display: none; }
+  .lib .score { position: absolute; top: 88px; right: 2px; min-width: 32px; height: 20px; font-size: 11px; }
+  .side__foot { display: none; }
+  .cc { grid-template-rows: repeat(8, var(--cell)) auto; }
+  .cc-dist { --bar-max: 150px; }
+  .cc-count { padding: 0 16px; }
+}
+@media (max-width: 1023px), (max-height: 619px) {
+  .rg-note { max-width: none; }
+}
+
+/* ---------- accessibility fallbacks for the new parts ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --pin-bg: rgb(246, 246, 248); }
+}
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: dark) {
+  :root { --pin-bg: rgb(40, 40, 44); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.cell, .pick, .fine__btn, .rate__close, .top__still):is(:active, :hover) { transform: none !important; }
+}
+
+.top__empty { margin: 0; font-size: 12px; line-height: 1.4; color: var(--text-2); }
+
+/* ---------- desktop: the rating sheet is a popover tied to what you clicked (placed by app.js) ---------- */
+.rate__arrow { display: none; }
+.rate.is-pop {
+  width: 400px;   /* the sheet and the popover both sit over the coloured grid, so both take the thicker panel material (set on .rate) */
+}
+.rate.is-pop::backdrop { background: transparent; }
+.rate[data-side="below"] .dt__glass { transform-origin: var(--ax) 0; }
+.rate[data-side="above"] .dt__glass { transform-origin: var(--ax) 100%; }
+.rate[data-side="right"] .dt__glass { transform-origin: 0 var(--ay); }
+.rate[data-side="left"] .dt__glass { transform-origin: 100% var(--ay); }
+.rate.is-pop .rate__arrow {
+  display: block; position: absolute; z-index: 1; pointer-events: none;
+  background: var(--dt-bg);
+  -webkit-backdrop-filter: blur(36px) saturate(180%);
+  backdrop-filter: blur(36px) saturate(180%);
+  opacity: 0;
+  transition: opacity 340ms var(--ease-sheet);
+}
+.rate.is-pop.is-in .rate__arrow { opacity: 1; }
+.rate.is-out .rate__arrow { transition-duration: 220ms; }
+.rate[data-side="below"] .rate__arrow { top: -12px; left: calc(var(--ax) - 13px); width: 26px; height: 12px; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.rate[data-side="above"] .rate__arrow { bottom: -12px; left: calc(var(--ax) - 13px); width: 26px; height: 12px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.rate[data-side="right"] .rate__arrow { left: -12px; top: calc(var(--ay) - 13px); width: 12px; height: 26px; clip-path: polygon(0 50%, 100% 0, 100% 100%); }
+.rate[data-side="left"] .rate__arrow { right: -12px; top: calc(var(--ay) - 13px); width: 12px; height: 26px; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+
+/* Top Rated on desktop: one row of five under the grid, across the whole pane (ref 1) */
+@container pane (min-width: 700px) {
+  .top { margin-top: 10px; }
+  .top__list { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .top__title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+}
+@container pane (min-width: 1000px) {
+  .top__list { gap: 16px; }
+}
+
+</style>
+<style id="safe-area">
+/* viewport-fit=cover lets the wallpaper run under the notch and home indicator; everything that sits on it keeps clear of them */
+.dock { bottom: calc(6px + env(safe-area-inset-bottom, 0px)); }
+.banner { top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(12px + env(safe-area-inset-right, 0px)); }
+@media (max-width: 1023px), (max-height: 619px) {
+  .desktop { padding-top: calc(24px + env(safe-area-inset-top, 0px)); padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); padding-left: calc(16px + env(safe-area-inset-left, 0px)); padding-right: calc(16px + env(safe-area-inset-right, 0px)); }
+  .dt { top: calc(16px + env(safe-area-inset-top, 0px)); left: calc(16px + env(safe-area-inset-left, 0px)); right: calc(16px + env(safe-area-inset-right, 0px)); }
+  .dt__glass { max-height: calc(100dvh - 104px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+  .rate[data-pos="bottom"] { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }   /* clear the home indicator */
+}
+@media (max-width: 640px) {
+  .banner { top: calc(8px + env(safe-area-inset-top, 0px)); left: calc(8px + env(safe-area-inset-left, 0px)); right: calc(8px + env(safe-area-inset-right, 0px)); }
+  dialog > .banner { top: auto; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .dt__glass { max-height: calc(100dvh - 80px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+}
+</style>
+</head>
+<body>
+<!-- TV Ratings, main screen. Built from the tahoe-design starter: wallpaper, one glass sheet (library + show page), Control Center tiles (stats), Dock (sections). Ratings from store.js, show data from tmdb.js (sample.js when there is no key). -->
+<svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="glyphLight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"></stop><stop offset="1" stop-color="#e3e9f4"></stop></linearGradient>
+    <linearGradient id="binGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".92"></stop><stop offset=".55" stop-color="#eef2f8" stop-opacity=".7"></stop><stop offset="1" stop-color="#cfd8e6" stop-opacity=".8"></stop></linearGradient>
+  </defs>
+  <symbol id="i-tray" viewBox="0 0 24 24"><path d="M4 13h4.2l1.4 2.4h4.8l1.4-2.4H20"></path><path d="M6.6 5.5h10.8L20 13v4.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V13z"></path></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="3"></rect><path d="M4 10h16M8.5 3.5v3M15.5 3.5v3"></path><rect x="8" y="13" width="3.4" height="3.2" rx=".8" fill="currentColor" stroke="none"></rect></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"></circle><path d="M12 7.5V12l3 2"></path></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2 8.8-9.4"></path></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2.8 9.6L12 5.2l9.2 4.4L12 14z"></path><path d="M6.6 11.6v3.9c0 1.4 2.5 2.9 5.4 2.9s5.4-1.5 5.4-2.9v-3.9"></path><path d="M21.2 9.6v4.6"></path></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M5 19.6c.9-3.6 3.6-5.5 7-5.5s6.1 1.9 7 5.5"></path></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.6 7.4a2 2 0 0 1 2-2h3.7l2 2.1h7.1a2 2 0 0 1 2 2v8.1a2 2 0 0 1-2 2H5.6a2 2 0 0 1-2-2z"></path></symbol>
+  <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8.8" r="3"></circle><path d="M3.4 18.6c.6-3 2.9-4.7 5.6-4.7s5 1.7 5.6 4.7"></path><circle cx="16.6" cy="8" r="2.4"></circle><path d="M15.8 13.2c2.6-.3 4.5 1.2 5.1 4"></path></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.6 8.4h12.8l-1 11.1H6.6z"></path><path d="M9 8.4V7a3 3 0 0 1 6 0v1.4"></path></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"></circle><path d="M15 15l4.8 4.8"></path></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"></path></symbol>
+  <symbol id="i-plus-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"></circle><path d="M12 8v8M8 12h8"></path></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 11v6"></path><circle cx="12" cy="7.4" r="1.1" fill="currentColor" stroke="none"></circle></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6.5" cy="12" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="17.5" cy="12" r="1.5" fill="currentColor" stroke="none"></circle></symbol>
+  <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 4v10M8 10.2l4 4 4-4"></path><path d="M4.5 14.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3"></path></symbol>
+  <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 14.5V3.8M8 7.6l4-3.8 4 3.8"></path><path d="M8.2 10.5H7a2.4 2.4 0 0 0-2.4 2.4v4.7A2.4 2.4 0 0 0 7 20h10a2.4 2.4 0 0 0 2.4-2.4v-4.7A2.4 2.4 0 0 0 17 10.5h-1.2"></path></symbol>
+  <symbol id="i-grip" viewBox="0 0 24 24"><path d="M6 8h12M6 12h12M6 16h12"></path></symbol>
+  <symbol id="i-bang" viewBox="0 0 24 24"><path d="M9.2 5v8.6M14.8 5v8.6"></path><circle cx="9.2" cy="18" r="1.3" fill="currentColor" stroke="none"></circle><circle cx="14.8" cy="18" r="1.3" fill="currentColor" stroke="none"></circle></symbol>
+  <symbol id="i-stack" viewBox="0 0 24 24"><path d="M4 8.2l8-4 8 4-8 4z"></path><path d="M4 12.2l8 4 8-4"></path><path d="M4 16.2l8 4 8-4"></path></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.6"></circle><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M6 18l1.4-1.4M16.6 7.4L18 6"></path></symbol>
+  <symbol id="i-checklist" viewBox="0 0 24 24"><path d="M4 7l1.6 1.6L8.6 5.4M4 13.4l1.6 1.6 3-3.2"></path><path d="M11.5 7h8.5M11.5 13.5h8.5M11.5 19h8.5"></path><circle cx="5.8" cy="19" r="1" fill="currentColor" stroke="none"></circle></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M6.5 12h11"></path></symbol>
+  <symbol id="i-bang1" viewBox="0 0 24 24"><path d="M12 5v8.6"></path><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"></circle></symbol>
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M14.5 6.5L9 12l5.5 5.5"></path></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9.5 6.5L15 12l-5.5 5.5"></path></symbol>
+  <symbol id="i-bin" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V5.2h5V7M6.5 7l.9 11.6a1.6 1.6 0 0 0 1.6 1.4h6a1.6 1.6 0 0 0 1.6-1.4L17.5 7M10 10.5v6M14 10.5v6"></path></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5H5z"></path><path d="M10 20a2 2 0 0 0 4 0"></path></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.4l2.62 5.31 5.86.85-4.24 4.13 1 5.84L12 16.77l-5.24 2.76 1-5.84-4.24-4.13 5.86-.85z"></path></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4.6 19.4l.9-4.1L15.7 5.1a1.9 1.9 0 0 1 2.7 0l.5.5a1.9 1.9 0 0 1 0 2.7L8.7 18.5z"></path><path d="M13.9 6.9l3.2 3.2"></path></symbol>
+  <symbol id="i-tv" viewBox="0 0 24 24"><rect x="3.5" y="6.5" width="17" height="11.5" rx="2.6"></rect><path d="M9 20.5h6M9.2 3.6L12 6.2l2.8-2.6"></path></symbol>
+  <symbol id="i-tv-off" viewBox="0 0 24 24"><rect x="3.5" y="6.5" width="17" height="11.5" rx="2.6"></rect><path d="M9 20.5h6M9.2 3.6L12 6.2l2.8-2.6M4.5 4.5l15 15"></path></symbol>
+  <symbol id="i-az" viewBox="0 0 24 24"><path d="M3.5 17.5l4-11 4 11M5 13.6h5"></path><path d="M14 10.5h6l-6 7h6"></path></symbol>
+</svg>
+
+<div class="wallpaper" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="wpSky" x1="0" y1="0" x2=".2" y2="1">
+        <stop offset="0" class="wp-s1"></stop>
+        <stop offset=".28" class="wp-s2"></stop>
+        <stop offset=".50" class="wp-s3"></stop>
+        <stop offset="1" class="wp-s4"></stop>
+      </linearGradient>
+      <linearGradient id="wpBody" x1=".18" y1=".05" x2=".72" y2="1">
+        <stop offset="0" class="wp-b0"></stop>
+        <stop offset=".12" class="wp-b1"></stop>
+        <stop offset=".30" class="wp-b2"></stop>
+        <stop offset=".62" class="wp-b3"></stop>
+        <stop offset="1" class="wp-b4"></stop>
+      </linearGradient>
+      <filter id="blurXL" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="60"></feGaussianBlur></filter>
+      <filter id="blurL" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="34"></feGaussianBlur></filter>
+      <filter id="blurM" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"></feGaussianBlur></filter>
+      <filter id="blurS" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"></feGaussianBlur></filter>
+      <filter id="blurXS" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="1.1"></feGaussianBlur></filter>
+      <clipPath id="wpWaveClip"><path d="M-40 790 C 230 610, 520 330, 800 175 C 960 88, 1080 34, 1220 -20 L 1500 -20 L 1500 940 L -40 940 Z"></path></clipPath>
+    </defs>
+
+    <!-- sky: blue-grey top, warm beige middle -->
+    <rect width="1440" height="900" fill="url(#wpSky)"></rect>
+    <!-- the blue fold on the left, above the main crest -->
+    <path class="wp-fold" filter="url(#blurL)" opacity=".9" d="M-80 530 C 90 490, 300 510, 480 610 C 360 680, 160 700, -80 740 Z"></path>
+    <path class="wp-fold-hi" filter="url(#blurM)" opacity=".7" d="M-60 512 C 120 478, 270 492, 420 562 C 300 576, 120 578, -60 598 Z"></path>
+
+    <!-- the main wave body -->
+    <g clip-path="url(#wpWaveClip)">
+      <rect width="1440" height="900" fill="url(#wpBody)"></rect>
+      <ellipse class="wp-core" filter="url(#blurXL)" opacity=".75" cx="1040" cy="560" rx="420" ry="150" transform="rotate(-26 1040 560)"></ellipse>
+      <ellipse class="wp-glow" filter="url(#blurXL)" opacity=".75" cx="720" cy="800" rx="420" ry="140" transform="rotate(-14 720 800)"></ellipse>
+      <ellipse class="wp-haze" filter="url(#blurXL)" opacity=".9" cx="1420" cy="860" rx="300" ry="230"></ellipse>
+      <!-- ribbons inside the curl -->
+      <path class="wp-streak" filter="url(#blurM)" opacity=".55" stroke-width="46" d="M360 760 C 600 560, 860 360, 1260 250"></path>
+      <path class="wp-streak" filter="url(#blurS)" opacity=".45" stroke-width="10" d="M230 820 C 480 620, 760 420, 1140 300 C 1260 262, 1360 250, 1480 250"></path>
+      <path class="wp-streak" filter="url(#blurS)" opacity=".35" stroke-width="7" d="M520 820 C 760 640, 1000 520, 1480 430"></path>
+      <!-- the translucent lip just under the crest -->
+      <path class="wp-lip" filter="url(#blurM)" opacity=".6" stroke-width="44" d="M-40 818 C 230 638, 520 358, 800 203 C 960 116, 1080 62, 1240 8"></path>
+      <path class="wp-crest" filter="url(#blurS)" opacity=".42" stroke-width="4" d="M-30 822 C 240 642, 530 362, 810 206 C 970 118, 1090 64, 1240 11"></path>
+      <path class="wp-crest" filter="url(#blurS)" opacity=".28" stroke-width="3" d="M-20 860 C 250 676, 545 392, 822 236 C 982 146, 1100 92, 1250 40"></path>
+    </g>
+    <!-- the bright specular crest line -->
+    <path class="wp-crest" filter="url(#blurM)" opacity=".55" stroke-width="16" d="M-40 790 C 230 610, 520 330, 800 175 C 960 88, 1080 34, 1220 -20"></path>
+    <path class="wp-crest" filter="url(#blurXS)" opacity=".95" stroke-width="2.6" d="M-40 790 C 230 610, 520 330, 800 175 C 960 88, 1080 34, 1220 -20"></path>
+  </svg>
+<canvas width="1440" height="900" class="wallpaper__raster" aria-hidden="true"></canvas></div>
+
+<main class="desktop">
+
+  <!-- The sheet: the library in the sidebar, the show page in the main pane (Series Graph refs 1-2) -->
+  <section class="sheet rim" aria-label="TV ratings">
+
+    <nav class="side" aria-label="Library">
+      <label class="search">
+        <svg class="ic"><use href="#i-search"></use></svg>
+        <span class="visually-hidden">Search your library</span>
+        <input class="search__input" type="search" placeholder="Search Library" data-action="search" autocomplete="off">
+      </label>
+      <div class="lib-strip">
+        <h2 class="side__head" id="lib-watched">Watched<span class="section__count" data-count="watched"></span></h2>
+        <ul class="nav lib-group" data-group="watched" aria-labelledby="lib-watched"></ul>
+        <h2 class="side__head" id="lib-list">Watching<span class="section__count" data-count="list"></span></h2>
+        <ul class="nav lib-group" data-group="list" aria-labelledby="lib-list"></ul>
+      </div>
+      <p class="side__foot">Community scores: IMDb user ratings. Posters and stills: TMDB.</p>
+    </nav>
+
+    <div class="pane">
+      <div class="pane__scroll">
+        <article class="show" aria-labelledby="show-title"></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Control Center: your rating stats (Series Graph ref 3) and the library sort -->
+  <aside class="cc" aria-label="Your ratings">
+    <section class="cc-mod rim cc-stat cc-first" aria-label="Get started">
+      <span class="cc-pill__icon cc-first__icon"><svg class="ic ic--fill" aria-hidden="true"><use href="#i-star"></use></svg></span>
+      <span class="cc-first__text"><span class="cc-first__title">Rate your first episode</span><span class="cc-first__sub">Search for a show to rate its first episode</span></span>
+    </section>
+    <section class="cc-mod rim cc-stat cc-count" aria-label="Rated so far"></section>
+    <section class="cc-mod rim cc-stat cc-dist" aria-labelledby="dist-title"></section>
+    <button class="cc-mod rim cc-ep" type="button" data-ep="best"></button>
+    <button class="cc-mod rim cc-ep" type="button" data-ep="worst"></button>
+    <button class="cc-mod rim cc-pill cc-show" type="button" data-showpill="top"></button>
+    <button class="cc-mod rim cc-pill cc-show" type="button" data-showpill="low"></button>
+    <fieldset class="cc-sort" data-control="sort">
+      <legend class="cc-sort__legend">Sort the library by</legend>
+      <div class="cc-sort__item">
+        <button class="cc-mod rim cc-round is-on" data-sort="score" aria-pressed="true" aria-label="Sort by your score"><svg class="ic ic--fill"><use href="#i-star"></use></svg></button>
+        <span class="cc-sort__label" aria-hidden="true">Your Score</span>
+      </div>
+      <div class="cc-sort__item">
+        <button class="cc-mod rim cc-round" data-sort="recent" aria-pressed="false" aria-label="Sort by recently rated"><svg class="ic"><use href="#i-clock"></use></svg></button>
+        <span class="cc-sort__label" aria-hidden="true">Recent</span>
+      </div>
+      <div class="cc-sort__item">
+        <button class="cc-mod rim cc-round" data-sort="title" aria-pressed="false" aria-label="Sort by title"><svg class="ic"><use href="#i-az"></use></svg></button>
+        <span class="cc-sort__label" aria-hidden="true">Title</span>
+      </div>
+      <div class="cc-sort__item">
+        <button class="cc-mod rim cc-round" data-sort="community" aria-pressed="false" aria-label="Sort by community score"><svg class="ic"><use href="#i-people"></use></svg></button>
+        <span class="cc-sort__label" aria-hidden="true">Community</span>
+      </div>
+    </fieldset>
+    <div class="cc-data" role="group" aria-label="Your ratings file">
+      <button class="cc-mod rim cc-pill" type="button" data-file="export"><span class="cc-pill__icon"><svg class="ic" aria-hidden="true"><use href="#i-export"></use></svg></span><span class="cc-pill__text"><span class="cc-pill__title">Export</span><span class="cc-pill__sub">Save a file</span></span></button>
+      <button class="cc-mod rim cc-pill" type="button" data-file="import"><span class="cc-pill__icon"><svg class="ic" aria-hidden="true"><use href="#i-import"></use></svg></span><span class="cc-pill__text"><span class="cc-pill__title">Import</span><span class="cc-pill__sub">Load a file</span></span></button>
+      <input class="cc-data__file" type="file" accept=".json,application/json" hidden>
+    </div>
+  </aside>
+</main>
+
+<!-- Dock: the sections, one honest icon each -->
+<ul class="dock" aria-label="Dock" style="--dock-n: 4;">
+  <li class="dock__item">
+    <button class="dock__btn" data-section="shows" aria-label="Shows" aria-current="page"><span class="app-icon app-icon--shows"><svg viewBox="0 0 40 40" aria-hidden="true"><path class="g-line" d="M14.5 5.2l5.5 4.6 5.5-4.6" style="stroke-width:2.6"></path><rect class="g-main" x="4.5" y="10.5" width="31" height="21" rx="5"></rect><path class="g-cut" d="M17.4 15.8v10.4l8.4-5.2z"></path><rect class="g-sub" x="13" y="33.4" width="14" height="2.8" rx="1.4"></rect></svg></span></button>
+    <span class="dock__label">Shows</span>
+    <span class="dock__dot" aria-hidden="true"></span>
+  </li>
+  <li class="dock__item">
+    <button class="dock__btn" data-section="diary" aria-label="Diary"><span class="app-icon app-icon--diary"><svg viewBox="0 0 40 40" aria-hidden="true"><rect class="g-sub" x="7" y="5" width="7" height="30" rx="3"></rect><rect class="g-main" x="10.5" y="5" width="22.5" height="30" rx="3.4"></rect><rect class="g-cut" x="16" y="13" width="11.5" height="2.6" rx="1.3"></rect><rect class="g-cut" x="16" y="18.6" width="8.5" height="2.6" rx="1.3"></rect><path class="g-cut" d="M25 5h4.6v9.6l-2.3-1.8-2.3 1.8z"></path></svg></span><span class="dock__badge" data-badge="diary" aria-hidden="true" hidden></span></button>
+    <span class="dock__label">Diary</span>
+  </li>
+  <li class="dock__item">
+    <button class="dock__btn" data-section="stats" aria-label="Top Rated"><span class="app-icon app-icon--stats"><svg viewBox="0 0 40 40" aria-hidden="true"><rect class="g-main" x="7.5" y="20" width="6.6" height="12" rx="2"></rect><rect class="g-main" x="16.7" y="12.5" width="6.6" height="19.5" rx="2"></rect><rect class="g-main" x="25.9" y="6.5" width="6.6" height="25.5" rx="2"></rect><rect class="g-sub" x="5.5" y="33.4" width="29" height="2.8" rx="1.4"></rect></svg></span></button>
+    <span class="dock__label">Top Rated</span>
+  </li>
+  <li class="dock__item">
+    <button class="dock__btn" data-section="search" aria-label="Search, add a show"><span class="app-icon app-icon--search"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="g-line" cx="17.5" cy="17.5" r="10"></circle><path class="g-line" d="M25 25l8.2 8.2" style="stroke-width:4.6"></path><path class="g-line" d="M17.5 12.8v9.4M12.8 17.5h9.4" style="stroke-width:2.6"></path></svg></span></button>
+    <span class="dock__label">Search</span>
+  </li>
+</ul>
+
+<!-- the rating sheet (IMDb ref 8): opens from any grid cell, a season or show score, Rate, or a top-rated still;
+     on desktop it is a popover beside what you clicked, on phones a sheet -->
+<dialog class="dt rate" aria-labelledby="rate-q">
+  <span class="rate__arrow" aria-hidden="true"></span>
+  <div class="dt__glass" tabindex="-1">
+    <div class="rate__top">
+      <button class="rate__close" type="button" data-action="close">Close</button>
+      <div class="rate__ctx"></div>
+      <span></span>
+    </div>
+    <div class="dt__scroll">
+      <div class="rate__hero" role="img" aria-label="Your score: not rated"><span class="rate__num">?</span></div>
+      <h2 class="rate__q" id="rate-q"></h2>
+      <p class="rate__band"></p>
+      <div class="rate__picks" role="radiogroup" aria-label="Quick pick a whole number"></div>
+      <div class="rate__fine">
+        <button class="fine__btn" type="button" data-step="-1" aria-label="Down 0.1"><svg class="ic"><use href="#i-minus"></use></svg></button>
+        <input class="fine__range" type="range" min="0" max="100" step="1" value="0" aria-label="Fine-tune your score">
+        <button class="fine__btn" type="button" data-step="1" aria-label="Up 0.1"><svg class="ic"><use href="#i-plus"></use></svg></button>
+        <input class="fine__field" type="text" inputmode="decimal" autocomplete="off" aria-label="Type a score, like 8.7 or 87" aria-describedby="rate-msg">
+      </div>
+      <p class="rate__msg" id="rate-msg" role="status" aria-live="polite"></p>
+      <div class="rate__facts"></div>
+    </div>
+    <div class="dt__foot">
+      <button class="dt__delete" type="button" data-action="remove">Remove Rating</button>
+      <span class="rate__hint"><span class="hint--key">Return saves · Esc cancels</span><span class="hint--touch">Saves when you pick or let go</span></span>
+    </div>
+  </div>
+</dialog>
+
+<div class="banner" role="status" aria-live="polite" aria-atomic="true">
+  <span class="app-icon app-icon--shows" aria-hidden="true"><svg viewBox="0 0 40 40"><rect class="g-main" x="4.5" y="10.5" width="31" height="21" rx="5"></rect><path class="g-cut" d="M17.4 15.8v10.4l8.4-5.2z"></path></svg></span>
+  <div class="banner__text"><div class="banner__title"></div><div class="banner__body"></div></div>
+  <button class="banner__undo" type="button" data-action="undo" tabindex="-1">Undo</button>
+</div>
+
+<script src="sample.js"></script>
+<script src="store.js"></script>
+<script src="tmdb.js"></script>
+<script>
+
+/* ---------- TV Ratings: render the library, the show page, the stats tiles; the rating sheet ----------
+   Jamie's scores come only from the ratings store (window.Ratings: integer tenths, null = not rated).
+   Show details, seasons and community scores come from window.TMDB (the sample shows when there is no key).
+   window.App.openShow(tmdbId) opens any TMDB show, whether or not it is in sample.js. */
+const app = (() => {
+  const R = window.Ratings, T = window.TMDB;
+  const SAMPLE = window.TV_DATA && Array.isArray(window.TV_DATA.shows) ? window.TV_DATA.shows : [];   // his list from his TV: names, posters, status
+  const sampleOf = id => SAMPLE.find(s => s.tmdb === +id);
+  const sampleTotal = s => s.seasons.reduce((n, se) => n + se.eps.length, 0);
+  // the 7 bands (standard s3), checked on the one-decimal value, low end inclusive
+  const BANDS = [
+    { min: 97, key: 'ac', name: 'Absolute Cinema', ink: 'var(--band-ink)' },
+    { min: 90, key: 'aw', name: 'Awesome', ink: '#fff' },
+    { min: 80, key: 'gr', name: 'Great', ink: 'var(--band-ink)' },
+    { min: 70, key: 'go', name: 'Good', ink: 'var(--band-ink)' },
+    { min: 60, key: 'av', name: 'Average', ink: 'var(--band-ink)' },
+    { min: 41, key: 'bd', name: 'Bad', ink: 'var(--band-ink)' },
+    { min: 0, key: 'ga', name: 'Garbage', ink: '#fff' },
+  ];
+  const band = v => (v == null ? null : BANDS.find(b => v >= b.min));
+  const fmt = v => (v == null ? '?' : (v / 10).toFixed(1));
+  const bs = v => { const b = band(v); return b ? `--b:var(--band-${b.key});--bf:${b.ink}` : ''; };
+  const mean = a => (a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : null);
+  const tenthsOf = v => (typeof v === 'number' && isFinite(v) ? Math.round(v * 10 + 1e-9) : null);   // TMDB 8.7 -> 87; 8.15 -> 82 (float guard)
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const votes = n => (n >= 1e6 ? (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'K' : String(n));
+  const initials = name => name.replace(/^The /, '').split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase();
+  // kind: poster | still | backdrop; tier: small | grid | page (TMDB.img picks the size)
+  const img = (path, kind, tier, name) => { const u = path ? T.img(path, kind, tier) : null; return `<span class="ph__txt">${name == null ? '<svg class="ic" aria-hidden="true"><use href="#i-tv"></use></svg>' : esc(name)}</span>${u ? `<img src="${esc(u)}" alt="" loading="lazy" decoding="async">` : ''}`; };
+  const $ = (s, r = document) => r.querySelector(s);
+  const srcName = () => (T.source === 'tmdb' ? 'TMDB' : 'IMDb');   // the sample community scores are IMDb's
+  // a poster or still that fails to load leaves its placeholder tile showing
+  document.addEventListener('error', e => { if (e.target.tagName === 'IMG' && e.target.closest('.ph')) e.target.remove(); }, true);
+
+  /* ---------- your ratings: one snapshot per render, read from the store ---------- */
+  let snap = null;
+  function takeSnap() {
+    const S = { eps: new Map(), seasons: new Map(), shows: new Map(), by: new Map(), rows: R.all() };
+    for (const r of S.rows) {
+      let b = S.by.get(r.tmdb_id);
+      if (!b) S.by.set(r.tmdb_id, b = { id: r.tmdb_id, name: '', eps: [], last: '' });
+      if (!b.name && r.show_name) b.name = r.show_name;
+      if (r.rated_at && r.rated_at > b.last) b.last = r.rated_at;
+      if (r.kind === 'episode') { S.eps.set(r.tmdb_id + ':' + r.season + ':' + r.episode, r.tenths); b.eps.push(r); }
+      else if (r.kind === 'season') S.seasons.set(r.tmdb_id + ':' + r.season, r.tenths);
+      else S.shows.set(r.tmdb_id, r.tenths);
+    }
+    return S;
+  }
+  snap = takeSnap();
+  const yEp = (id, s, e) => snap.eps.get(id + ':' + s + ':' + e) ?? null;
+  const ySeason = (id, s) => snap.seasons.get(id + ':' + s) ?? null;
+  const yShow = id => snap.shows.get(+id) ?? null;
+
+  /* ---------- show data from TMDB: show details first, then every season in parallel ---------- */
+  const meta = new Map(), metaP = new Map(), metaErr = new Map(), full = new Map(), fullP = new Map();
+  function toBase(r) {
+    const seasonList = (r.seasons || []).filter(se => se.n > 0).map(se => ({ n: se.n, count: se.episode_count || 0 }));
+    return {
+      id: r.id, name: r.name || '', years: r.years || '', poster: r.poster_path || null, backdrop: r.backdrop_path || null,
+      comm: tenthsOf(r.vote_average), votes: typeof r.vote_count === 'number' ? r.vote_count : null,
+      seasonList, nSeasons: seasonList.length, total: seasonList.reduce((n, se) => n + se.count, 0),
+    };
+  }
+  function loadMeta(id) {
+    id = +id;
+    if (meta.has(id)) return Promise.resolve(meta.get(id));
+    if (!metaP.has(id)) {
+      metaP.set(id, T.show(id).then(r => { const b = toBase(r); meta.set(id, b); metaErr.delete(id); metaP.delete(id); libSoon(); statsSoon(); return b; },
+        e => { metaP.delete(id); metaErr.set(id, e); throw e; }));
+    }
+    return metaP.get(id);
+  }
+  function loadFull(id) {
+    id = +id;
+    const have = full.get(id);
+    if (have && !have.partial) return Promise.resolve(have);
+    if (!fullP.has(id)) {
+      fullP.set(id, (async () => {
+        const b = await loadMeta(id);
+        const got = await Promise.all(b.seasonList.map(se => T.season(id, se.n).then(s => ({ n: se.n, s }), err => ({ n: se.n, err }))));
+        if (got.length && got.every(g => !g.s)) throw got[0].err;
+        const failed = [];
+        const seasons = [];
+        for (const g of got) {
+          if (!g.s) { failed.push(g.n); continue; }
+          const eps = (g.s.episodes || []).filter(x => x.e >= 1)
+            .map(x => ({ e: x.e, title: x.name || '', still: x.still_path || null, comm: tenthsOf(x.vote_average), votes: x.vote_count || 0 }))
+            .sort((a, b2) => a.e - b2.e);
+          if (!eps.length) continue;
+          seasons.push({ n: g.n, eps, map: new Map(eps.map(x => [x.e, x])), max: eps[eps.length - 1].e });
+        }
+        const sh = { ...b, seasons, failed, partial: failed.length > 0, total: seasons.reduce((n, se) => n + se.eps.length, 0) };
+        full.set(id, sh);
+        statsSoon();
+        return sh;
+      })().finally(() => fullP.delete(id)));
+    }
+    return fullP.get(id);
+  }
+
+  const state = { show: null, mode: 'mine', sort: 'score', q: '', err: null };
+  const epList = sh => sh.seasons.flatMap(se => se.eps.map(x => ({ sh, s: se.n, e: x.e, comm: x.comm, mine: yEp(sh.id, se.n, x.e), title: x.title, still: x.still, votes: x.votes })));
+  const showStats = sh => {
+    let total = 0; const rated = [];
+    for (const se of sh.seasons) for (const x of se.eps) { total++; const v = yEp(sh.id, se.n, x.e); if (v != null) rated.push(v); }
+    return { total, rated: rated.length, avg: mean(rated) };
+  };
+  const epName = x => x.title || `Episode ${x.e}`;
+
+  /* ---------- library (sidebar): every show you rated anything in, plus the sample shows ---------- */
+  function libIds() { return [...snap.by.keys()]; }   // only shows you've rated something in; the sample shows stay searchable
+  function libInfo(id) {
+    const m = meta.get(id), sm = sampleOf(id), b = snap.by.get(id);
+    const total = m ? m.total : sm ? sampleTotal(sm) : null;
+    const ratedAll = b ? b.eps.filter(r => r.season >= 1).length : 0;
+    const n = total != null ? Math.min(ratedAll, total) : ratedAll;
+    const text = total != null ? (n ? `${n} of ${total} rated` : 'Not started') : (n ? `${n} rated` : 'Not started');
+    // watched-or-watching: the sample show's own status, any show that isn't a sample one but has a rating, or half its episodes rated
+    const group = total && n * 2 < total && yShow(id) == null ? 'list' : 'watched';   // Watching: under half rated and no show score yet
+    return {
+      id, group, n, total, text,
+      name: (m && m.name) || (sm && sm.name) || (b && b.name) || `Show ${id}`,
+      poster: m ? m.poster : sm ? sm.poster : null,
+      comm: m ? m.comm : sm ? sm.community : null,
+      mine: yShow(id), avg: b ? mean(b.eps.filter(r => r.season >= 1).map(r => r.tenths)) : null, last: b ? b.last : '',
+    };
+  }
+  let libTimer = 0;
+  let statsTimer = 0;
+  function statsSoon() { if (!statsTimer) statsTimer = requestAnimationFrame(() => { statsTimer = 0; renderStats(); }); }
+  function libSoon() { if (!libTimer) libTimer = requestAnimationFrame(() => { libTimer = 0; renderLibrary(); }); }
+  function renderLibrary() {
+    const ids = libIds();
+    for (const id of ids) if (!meta.has(id) && !metaP.has(id) && !metaErr.has(id)) loadMeta(id).catch(() => {});
+    const infos = ids.map(libInfo);
+    const cmp = {
+      score: (a, b) => (b.mine ?? -1) - (a.mine ?? -1) || (b.avg ?? -1) - (a.avg ?? -1),
+      recent: (a, b) => b.last.localeCompare(a.last),
+      title: (a, b) => a.name.replace(/^The /, '').localeCompare(b.name.replace(/^The /, '')),
+      community: (a, b) => (b.comm ?? -1) - (a.comm ?? -1),
+    }[state.sort];
+    for (const group of ['watched', 'list']) {
+      const list = infos.filter(s => s.group === group && s.name.toLowerCase().includes(state.q)).sort(cmp);
+      $(`[data-count="${group}"]`).textContent = list.length;
+      if (group === 'list') $('#lib-list').hidden = !list.length;
+      $(`[data-group="${group}"]`).innerHTML = list.map(sh => {
+        const cur = sh.id === state.show ? ' aria-current="page"' : '';
+        return `<li><button class="navrow lib" type="button" data-show="${sh.id}"${cur} aria-label="${esc(sh.name)}, your score ${sh.mine == null ? 'not rated' : fmt(sh.mine)}, ${sh.text}">`
+          + `<span class="lib__poster ph">${img(sh.poster, 'poster', 'grid', initials(sh.name))}</span>`
+          + `<span class="navrow__label"><span class="lib__title">${esc(sh.name)}</span><span class="lib__meta">${sh.text}</span></span>`
+          + `<span class="score score--own" style="${bs(sh.mine)}" aria-hidden="true">${fmt(sh.mine)}</span></button></li>`;
+      }).join('') || (group === 'watched' ? `<li class="lib-empty">${state.q ? 'No match. Search a show to rate its first episode.' : 'Search a show to rate its first episode.'}</li>` : '');
+    }
+  }
+
+  /* ---------- the show page (main pane) ---------- */
+  function renderShow() {
+    const el = $('.show'), sc = $('.pane__scroll');
+    const keepTop = sc.scrollTop, keepLeft = $('.rg-wrap', el)?.scrollLeft || 0;   // a re-render must not move the page
+    const mine = state.mode === 'mine';
+    el.classList.toggle('show--comm', !mine);
+    el.classList.remove('show--skel');
+    const sh = state.show != null ? full.get(state.show) : null;
+    if (!sh) {
+      el.classList.remove('is-stuck');
+      const msg = (title, text, btn) => `<div class="show__state show__state--msg"${state.err ? ' role="alert"' : ''}><svg class="ic ua__ic" aria-hidden="true"><use href="#i-tv-off"></use></svg><h2 class="ua__title">${esc(title)}</h2><p class="ua__text">${esc(text)}</p>${btn || ''}</div>`;
+      if (state.show == null) el.innerHTML = msg('No show open', 'Search a show to rate its first episode.');
+      else if (state.err) {
+        const nf = state.err.code === 'notfound' || state.err.code === 'badid';
+        const back = nf && (state.last && state.last !== state.show ? state.last : libIds().find(x => x !== state.show));
+        el.innerHTML = nf
+          ? msg('Show not found', "TMDB doesn't have a show with that id.", back != null ? `<button class="pillbtn" type="button" data-back="${back}">Back</button>` : '')
+          : msg("Couldn't load this show", state.err.message || 'Something went wrong. Try again.', '<button class="pillbtn" type="button" data-retry>Try again</button>');
+      } else {
+        const cells = r => `<span class="sk sk-lab"></span>` + '<span class="sk"></span>'.repeat(5);
+        el.classList.add('show--skel');
+        el.innerHTML = `<p class="visually-hidden" role="status">Loading ${esc(libInfo(state.show).name)}</p>
+          <div class="show__info sk-pulse" aria-hidden="true"><div class="show__poster sk"></div><div class="show__text"><span class="sk sk-line sk-title"></span><span class="sk sk-line sk-meta"></span><span class="sk sk-score"></span></div></div>
+          <div class="show__bar sk-pulse" aria-hidden="true"><span class="sk sk-seg"></span></div>
+          <div class="rg-wrap sk-pulse" aria-hidden="true"><div class="sk-grid">${Array.from({ length: 9 }, cells).join('')}</div></div>`;
+      }
+      return;
+    }
+    const st = showStats(sh), my = yShow(sh.id);
+    const b = band(my);
+    const rows = Math.max(0, ...sh.seasons.map(s => s.max));
+    const src = srcName();
+    const val = x => (mine ? x.mine : x.comm);
+
+    let grid = '<table class="rg"><caption class="visually-hidden">' + (mine ? 'Your' : 'Community') + ' episode scores, seasons across, episodes down</caption><thead><tr><th scope="col"><span class="visually-hidden">Episode</span></th>'
+      + sh.seasons.map(se => `<th scope="col">S${se.n}</th>`).join('') + '</tr></thead><tbody>';
+    for (let r = 1; r <= rows; r++) {
+      grid += `<tr><th scope="row">E${r}</th>`;
+      for (const se of sh.seasons) {
+        const e = se.map.get(r);
+        if (!e) { grid += '<td></td>'; continue; }
+        const x = { s: se.n, e: r, comm: e.comm, mine: yEp(sh.id, se.n, r), title: e.title }, v = val(x);
+        const label = `S${se.n} E${r}${x.title ? ', ' + x.title : ''}. Yours ${x.mine == null ? 'not rated' : fmt(x.mine)}, community ${fmt(x.comm)}`;
+        grid += `<td><button class="cell${v == null ? ' cell--q' : ''}" type="button" style="${bs(v)}" data-rate="ep" data-s="${se.n}" data-e="${r}" aria-label="${esc(label)}" title="${esc(epName(x))} · Yours ${fmt(x.mine)} · Community ${fmt(x.comm)}">${fmt(v)}</button></td>`;
+      }
+      grid += '</tr>';
+    }
+    const seVals = se => se.eps.map(x => (mine ? yEp(sh.id, se.n, x.e) : x.comm)).filter(v => v != null);
+    grid += '</tbody><tfoot><tr class="rg-avg"><th scope="row">Avg</th>' + sh.seasons.map(se => {
+      const a = mean(seVals(se));
+      return `<td><span class="avg${a == null ? ' is-q' : ''}" style="${bs(a)}">${fmt(a)}</span></td>`;
+    }).join('') + '</tr><tr class="rg-n"><th scope="row"><span class="visually-hidden">Rated</span></th>' + sh.seasons.map(se =>
+      `<td>${mine ? `${seVals(se).length} of ${se.eps.length}` : `${se.eps.length} eps`}</td>`
+    ).join('') + '</tr><tr class="rg-own"><th scope="row">Season</th>' + sh.seasons.map(se => {
+      const sv = ySeason(sh.id, se.n);
+      return `<td><button class="cell score--own${sv == null ? ' cell--q' : ''}" type="button" style="${bs(sv)}" data-rate="season" data-s="${se.n}" aria-label="Your Season ${se.n} score: ${sv == null ? 'not rated' : fmt(sv)}">${fmt(sv)}</button></td>`;
+    }).join('') + '</tr></tfoot></table>';
+
+    const seen = new Set();   // every scored episode counts (no still: placeholder tile; no title: "Episode N"); a two-part episode that shares one real still shows once
+    const top = epList(sh).filter(x => val(x) != null).sort((a, b2) => val(b2) - val(a) || b2.votes - a.votes || a.s - b2.s || a.e - b2.e)
+      .filter(x => !x.still || (!seen.has(x.still) && seen.add(x.still))).slice(0, 5);
+    const legend = BANDS.map(x => `<li><i style="--b:var(--band-${x.key})"></i>${x.name}</li>`).join('') + '<li class="is-q"><i></i>Not rated</li>';
+    const nRated = mine ? `${st.rated} of ${st.total} rated · click a cell to rate` : `${st.total} episodes · ${src} user ratings`;
+    const meta2 = [sh.years, `${sh.nSeasons} season${sh.nSeasons === 1 ? '' : 's'}`].filter(Boolean).join(' · ');
+    const fail = sh.failed.length ? `<p class="rg-note">Couldn't load ${sh.failed.map(n => 'Season ' + n).join(', ')}. Open the show again to retry.</p>` : '';
+
+    el.innerHTML = `
+      <div class="show__info">
+        <div class="show__poster ph">${img(sh.poster, 'poster', 'page', sh.name)}</div>
+        <div class="show__text">
+          <h1 class="show__title" id="show-title">${esc(sh.name)}</h1>
+          <p class="show__meta">${esc(meta2)}</p>
+          <div class="show__scores">
+            <div>
+              <span class="kicker">Your show score</span>
+              <div class="own">
+                <button class="score score--own score--xl" type="button" style="${bs(my)}" data-rate="show" aria-label="Your show score: ${my == null ? 'not rated' : fmt(my)}. Change">${fmt(my)}</button>
+                <div><div class="own__band">${b ? b.name : 'Not rated yet'}</div><div class="own__state">${my == null ? 'Rate the whole show' : 'Your own score'}</div></div>
+              </div>
+              <div class="avgline">Avg of ${st.rated} rated episode${st.rated === 1 ? '' : 's'} ${st.avg == null ? '' : `<span class="avgnum" style="${bs(st.avg)}">${fmt(st.avg)}</span>`}</div>
+            </div>
+            <div>
+              <span class="kicker">Community</span>
+              <div class="comm"><svg class="ic ic--fill" aria-hidden="true"><use href="#i-star"></use></svg><span class="comm__num">${fmt(sh.comm)}</span><span class="comm__src">${src}${sh.votes ? ' · ' + votes(sh.votes) + ' votes' : ''}</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="pillbtn rate-btn" type="button" data-rate="show"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg>Rate</button>
+      </div>
+      <div class="show__bar">
+        <div class="seg" role="radiogroup" aria-label="Whose scores the grid shows">
+          <button class="seg__btn" type="button" role="radio" aria-checked="${mine}" data-mode="mine">Yours</button>
+          <button class="seg__btn" type="button" role="radio" aria-checked="${!mine}" data-mode="comm">Community</button>
+        </div>
+        <span class="bar__note">${nRated}</span>
+        <ul class="legend" aria-label="Score bands">${legend}</ul>
+      </div>
+      <div class="rg-wrap">${grid}
+        <p class="rg-note">${mine
+          ? '<b>Avg</b>: mean of your rated episodes · <b>Season</b>: your own season score'
+          : (T.source === 'tmdb' ? 'Community: TMDB user ratings' : 'Community: IMDb user ratings, dataset of 8 Nov 2026') + ' · season scores are yours only'}</p>${fail}
+      </div>
+      <section class="top" aria-labelledby="top-h">
+        <h2 class="top__head" id="top-h">${mine ? 'Your Top Rated' : 'Top Rated'}<svg class="ic" aria-hidden="true"><use href="#i-chev-r"></use></svg></h2>
+        <p class="top__sub">${mine ? 'Highest rated by you' : 'Highest rated by the community'}</p>
+        ${top.length ? '' : `<p class="top__empty">${mine ? 'Nothing rated yet. Pick any grid cell to rate an episode.' : 'No community scores for this show yet.'}</p>`}<ol class="top__list">${top.map((x, i) => `
+          <li><button class="top__btn" type="button" data-rate="ep" data-s="${x.s}" data-e="${x.e}" aria-label="${i + 1}. ${esc(epName(x))}, S${x.s}E${x.e}, ${fmt(val(x))}">
+            <span class="top__still ph">${img(x.still, 'still', 'page', null)}<span class="top__rank" aria-hidden="true">${i + 1}</span><span class="score" style="${bs(val(x))}" aria-hidden="true">${fmt(val(x))}</span></span>
+            <span class="top__title">${esc(epName(x))}</span><span class="top__ep">S${x.s}E${x.e}</span></button></li>`).join('')}
+        </ol>
+      </section>`;
+    const wrap = $('.rg-wrap', el);
+    if (wrap && keepLeft) { wrap.scrollLeft = keepLeft; wrap.classList.add('is-scrolled'); }
+    if (keepTop) sc.scrollTop = keepTop;
+  }
+
+  /* ---------- Control Center: stats across every show you rated (standard s4.3) ----------
+     ONE rule set, one pass over the store's rows (no per-show fetches), matching the show page:
+     - season 0 (Specials) is left out of every number (the show page hides it);
+     - episodes = rated episodes, mean = mean of those; seasons = rated season scores; shows = shows with any rated item left;
+     - distribution = rated episodes in 10 bins, 0-0.9 ... 9-10 (a 10.0 sits in the last bin);
+     - best / worst episode = highest / lowest score, a tie goes to the most recently rated one;
+     - top / lowest show = your own show score if set, otherwise the mean of that show's rated episodes (said on the tile). */
+  const laterThan = (a, b) => (a.at !== b.at ? a.at > b.at : (a.id - b.id || a.s - b.s || a.e - b.e) < 0);
+  function computeStats(rows) {
+    const S = { episodes: 0, seasons: 0, shows: 0, sum: 0, mean: null, bins: Array.from({ length: 10 }, () => ({})), best: null, worst: null, top: null, low: null };
+    const by = new Map();   // show id -> { id, name, own, sum, n, at }
+    for (const r of rows) {
+      if (r.kind !== 'show' && !(r.season >= 1)) continue;   // season 0 (Specials) and anything without a real season
+      const at = r.rated_at || '';
+      let sh = by.get(r.tmdb_id);
+      if (!sh) by.set(r.tmdb_id, sh = { id: r.tmdb_id, name: '', own: null, sum: 0, n: 0, at: '' });
+      if (!sh.name && r.show_name) sh.name = r.show_name;
+      if (at > sh.at) sh.at = at;
+      if (r.kind === 'show') sh.own = r.tenths;
+      else if (r.kind === 'season') S.seasons++;
+      else if (r.kind === 'episode') {
+        S.episodes++; S.sum += r.tenths; sh.sum += r.tenths; sh.n++;
+        const bk = S.bins[Math.min(9, Math.floor(r.tenths / 10))], k = band(r.tenths).key;
+        bk[k] = (bk[k] || 0) + 1;
+        const x = { id: r.tmdb_id, name: r.show_name || '', s: r.season, e: r.episode, title: r.episode_name || '', mine: r.tenths, at };
+        if (!S.best || x.mine > S.best.mine || (x.mine === S.best.mine && laterThan(x, S.best))) S.best = x;
+        if (!S.worst || x.mine < S.worst.mine || (x.mine === S.worst.mine && laterThan(x, S.worst))) S.worst = x;
+      }
+    }
+    S.shows = by.size;
+    for (const x of [S.best, S.worst]) if (x && !x.name) x.name = by.get(x.id).name;   // a row without its own show name borrows the show's
+    S.mean = S.episodes ? Math.round(S.sum / S.episodes) : null;
+    for (const sh of by.values()) {
+      const own = sh.own != null, v = own ? sh.own : sh.n ? Math.round(sh.sum / sh.n) : null;
+      if (v == null) continue;   // a show with only a season score has no show-level number
+      const x = { id: sh.id, name: sh.name, mine: v, own, n: sh.n, at: sh.at };
+      if (!S.top || x.mine > S.top.mine || (x.mine === S.top.mine && laterThan(x, S.top))) S.top = x;
+      if (!S.low || x.mine < S.low.mine || (x.mine === S.low.mine && laterThan(x, S.low))) S.low = x;
+    }
+    S.empty = !S.episodes && !S.seasons && !by.size;
+    return S;
+  }
+  const showName = (id, own) => own || meta.get(id)?.name || sampleOf(id)?.name || `Show ${id}`;
+  function renderStats() {
+    const S = computeStats(snap.rows), cc = $('.cc');
+    cc.classList.toggle('is-empty', S.empty);
+    if (!S.empty) {
+      const num = n => n.toLocaleString('en-GB');
+      $('.cc-count').innerHTML = [[num(S.episodes), S.episodes === 1 ? 'episode' : 'episodes'], [num(S.seasons), S.seasons === 1 ? 'season' : 'seasons'], [num(S.shows), S.shows === 1 ? 'show' : 'shows'], [fmt(S.mean), 'mean']]
+        .map(([n, l]) => `<div class="cc-count__item"><span class="cc-count__num">${n}</span><span class="cc-count__lab">${l}</span></div>`).join('');
+      $('.cc-count').setAttribute('aria-label', `Rated so far: ${S.episodes} episodes, ${S.seasons} seasons, ${S.shows} shows; mean episode score ${fmt(S.mean)}`);
+
+      // 10 bins (0-0.9 ... 9-10), each bar split into the bands it holds
+      const bins = S.bins, n = S.episodes;
+      const tot = bins.map(b => Object.values(b).reduce((a, c) => a + c, 0)), max = Math.max(...tot, 1);
+      const whole = (() => { const raw = tot.map(c => (n ? c * 100 / n : 0)), fl = raw.map(Math.floor); let left = n ? 100 - fl.reduce((a, c) => a + c, 0) : 0;
+        raw.map((r, i) => [r - fl[i], i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (left > 0 && raw[i] > 0) { fl[i]++; left--; } }); return fl; })();
+      const pct = i => (!tot[i] ? '0%' : whole[i] < 1 ? '<1%' : whole[i] + '%');
+      $('.cc-dist').innerHTML = `<div class="cc-dist__head"><span class="cc-dist__title" id="dist-title">Your Ratings</span><span class="cc-dist__sub">${n} ${n === 1 ? 'episode' : 'episodes'}</span></div>
+        <ol class="bars" aria-label="How many episodes in each score range">${bins.map((b, i) => `<li class="bar" aria-label="${i}.0 to ${i === 9 ? '10' : i + '.9'}: ${pct(i)}">
+          <span class="bar__pct" aria-hidden="true">${pct(i)}</span>
+          <span class="bar__fill" style="--p:${tot[i] / max}">${BANDS.slice().reverse().filter(x => b[x.key]).map(x => `<span class="bar__seg" style="--n:${b[x.key]};--b:var(--band-${x.key})"></span>`).join('')}</span>
+          <span class="bar__x" aria-hidden="true">${i}</span></li>`).join('')}</ol>`;
+
+      for (const [key, x, lab] of [['best', S.best, 'Best Episode'], ['worst', S.worst, 'Worst Episode']]) {
+        const t = $(`[data-ep="${key}"]`);
+        t.disabled = !x;
+        if (!x) {
+          delete t.dataset.show; delete t.dataset.s; delete t.dataset.e;
+          t.setAttribute('aria-label', `${lab}: nothing rated yet`);
+          t.innerHTML = `<span class="cc-ep__top"><span class="cc-ep__label">${lab}</span><span class="score">?</span></span>
+            <span class="cc-ep__title">Nothing rated yet</span><span class="cc-ep__meta">&nbsp;</span><span class="cc-ep__meta">&nbsp;</span>`;
+          continue;
+        }
+        const nm = showName(x.id, x.name), title = x.title || full.get(x.id)?.seasons.find(se => se.n === x.s)?.map.get(x.e)?.title || '';
+        t.dataset.show = x.id; t.dataset.s = x.s; t.dataset.e = x.e;
+        t.setAttribute('aria-label', `${lab}: ${title || `Episode ${x.e}`}, ${nm} S${x.s}E${x.e}, ${fmt(x.mine)}`);
+        t.innerHTML = `<span class="cc-ep__top"><span class="cc-ep__label">${lab}</span><span class="score" style="${bs(x.mine)}">${fmt(x.mine)}</span></span>
+          <span class="cc-ep__title">${esc(title || `Episode ${x.e}`)}</span><span class="cc-ep__meta">${esc(nm)}</span><span class="cc-ep__meta">S${x.s}E${x.e}</span>`;
+      }
+      for (const [key, sh, lab] of [['top', S.top, 'Top Show'], ['low', S.low, 'Lowest Show']]) {
+        const t = $(`[data-showpill="${key}"]`);
+        t.disabled = !sh;
+        if (!sh) {
+          delete t.dataset.show;
+          t.setAttribute('aria-label', `${lab}: no show score or rated episodes yet`);
+          t.innerHTML = `<span class="cc-pill__icon">?</span><span class="cc-pill__text"><span class="cc-pill__title">No show rated yet</span><span class="cc-pill__sub">${lab}</span></span>`;
+          continue;
+        }
+        const nm = showName(sh.id, sh.name), basis = sh.own ? 'your score' : 'episodes avg';
+        t.dataset.show = sh.id;
+        t.setAttribute('aria-label', `${lab}: ${nm}, ${fmt(sh.mine)}, ${sh.own ? 'your own show score' : `average of your ${sh.n} rated episode${sh.n === 1 ? '' : 's'}`}`);
+        t.innerHTML = `<span class="cc-pill__icon" style="${bs(sh.mine)}">${fmt(sh.mine)}</span><span class="cc-pill__text"><span class="cc-pill__title">${esc(nm)}</span><span class="cc-pill__sub">${lab} · ${basis}</span></span>`;
+      }
+    }
+    // Dock: Diary counts the ratings you logged in the last 7 days
+    const week = R.diary({ limit: 1000 }).filter(d => d.value != null && Date.now() - Date.parse(d.rated_at) < 7 * 864e5).length;
+    const badge = $('[data-badge="diary"]');
+    badge.textContent = week; badge.hidden = !week;
+    $('[data-section="diary"]').setAttribute('aria-label', week ? `Diary, ${week} ratings this week` : 'Diary');
+  }
+
+  function render() {
+    snap = takeSnap();
+    $('.side__foot').textContent = T.source === 'tmdb' ? 'Community scores, posters and stills: TMDB.' : 'Community scores: IMDb user ratings. Posters and stills: TMDB.';
+    renderLibrary(); renderShow(); renderStats(); markSel();
+  }
+
+  /* ---------- the rating sheet ----------
+     Opens from a grid cell (episode), a Season-row cell, the show score or the header Rate button, or a Top Rated tile.
+     A quick-pick, Return in the typed field, or letting go of the slider SAVES: one save = one store write = one diary entry.
+     Slider, stepper and typing only PREVIEW (the "draft") until then; clicking away, Close or Return saves a pending draft, Esc drops it. */
+  const dlg = $('.rate'), field = $('.fine__field');
+  let target = null, undo = null, bannerTimer = 0;
+  let draft = null;        // a previewed score that is not saved yet: tenths, or null
+  let msgWarn = '';        // gentle hint under the controls when typed text is not a score
+  let closing = 0;         // timer while the close animation runs
+  let conflict = 0;        // 1: the saved score changed elsewhere while a draft was pending; 2: Return pressed once since
+  let shownSaved = null;   // the saved score the sheet last drew (to notice a change made elsewhere)
+  const picks = $('.rate__picks');
+  const compact = matchMedia('(max-width: 640px), (pointer: coarse)');   // phones: the 0-10 row is one control
+  // the rating sheet reads and writes the ratings store: kind 'ep' here is 'episode' there
+  const item = t => (t.kind === 'show' ? { kind: 'show', tmdb_id: t.show } : t.kind === 'season' ? { kind: 'season', tmdb_id: t.show, season: t.s } : { kind: 'episode', tmdb_id: t.show, season: t.s, episode: t.e });
+  const get = t => R.get(item(t));
+  const isScore = v => Number.isInteger(v) && v >= 0 && v <= 100;
+  const set = (t, v) => {   // never called with anything but whole tenths 0..100
+    if (!isScore(v)) return null;
+    const sh = full.get(t.show), x = t.kind === 'ep' && sh?.seasons.find(s => s.n === t.s)?.map.get(t.e);
+    return R.set(item(t), v, { show_name: sh?.name || '', episode_name: x?.title || null });
+  };
+  const label = t => { const n = full.get(t.show)?.name || `Show ${t.show}`; return t.kind === 'show' ? `${n} · whole show` : t.kind === 'season' ? `${n} · Season ${t.s}` : `${n} · S${t.s}E${t.e}`; };
+  const coarse = matchMedia('(pointer: coarse)');
+  $('.rate__picks').innerHTML = Array.from({ length: 11 }, (_, i) => `<button class="pick" type="button" role="radio" aria-checked="false" tabindex="-1" data-pick="${i}">${i}</button>`).join('');
+
+  function markSel() {
+    document.querySelectorAll('.cell.is-sel').forEach(c => c.classList.remove('is-sel'));
+    const t = target;
+    if (t && dlg.open && t.kind !== 'show' && t.show === state.show) $(`.rg [data-rate="${t.kind}"][data-s="${t.s}"]${t.kind === 'ep' ? `[data-e="${t.e}"]` : ''}`)?.classList.add('is-sel');
+  }
+  function fill() {
+    const t = target, sh = full.get(t.show);
+    if (!sh) return;
+    const saved = get(t), v = draft != null ? draft : saved, b = band(v);
+    const savedChanged = saved !== shownSaved; shownSaved = saved;
+    if (savedChanged && draft != null) conflict = 1;   // changed elsewhere under a pending draft: keep the draft, ask first
+    if (draft == null) conflict = 0;
+    const se = t.kind !== 'show' && sh.seasons.find(s => s.n === t.s);
+    const e = t.kind === 'ep' && se && se.map.get(t.e);
+    $('.rate__ctx').textContent = t.kind === 'show' ? 'Whole show' : sh.name;
+    $('.rate__q').textContent = t.kind === 'show' ? `${sh.name} · whole show` : t.kind === 'season' ? `Season ${t.s}` : `S${t.s}E${t.e} · ${(e && e.title) || 'Episode ' + t.e}`;
+    const hero = $('.rate__hero');
+    hero.classList.toggle('is-unrated', v == null);
+    hero.setAttribute('aria-label', `Your score: ${v == null ? 'not rated' : fmt(v)}`);
+    $('.rate__num').textContent = fmt(v);
+    const bandEl = $('.rate__band');
+    bandEl.textContent = b ? b.name : 'Not rated yet';
+    bandEl.setAttribute('style', bs(v)); bandEl.classList.toggle('has-dot', !!b);
+    // a whole-number score fills its pick; 8.7 rings the 8
+    const whole = v != null && v % 10 === 0, near = v == null ? -1 : Math.min(10, Math.floor(v / 10));
+    for (const p of dlg.querySelectorAll('.pick')) {
+      const i = +p.dataset.pick, on = whole && v / 10 === i, ring = !whole && i === near;
+      p.setAttribute('aria-checked', on); p.classList.toggle('is-near', ring);
+      p.setAttribute('style', on || ring ? bs(v) : '');
+      p.tabIndex = !compact.matches && i === (near >= 0 ? near : 0) ? 0 : -1;   // one tab stop for the row; arrow keys move within it
+    }
+    if (compact.matches) {   // the phone row is one slider-like control
+      if (v == null) picks.removeAttribute('aria-valuenow'); else picks.setAttribute('aria-valuenow', v / 10);
+      picks.setAttribute('aria-valuetext', v == null ? 'Not rated' : fmt(v));
+    }
+    $('.fine__range').value = v ?? 0;
+    if (document.activeElement !== field || (draft == null && savedChanged)) field.value = v == null ? '' : fmt(v);   // never leave stale text in the field
+    field.placeholder = '?';
+    $('[data-action="remove"]').disabled = saved == null;
+    const msg = $('.rate__msg');
+    msg.textContent = msgWarn || (conflict ? (conflict === 2 ? 'Press Return again to replace the newer score' : 'Changed elsewhere · Return twice to replace it') : draft != null ? (coarse.matches ? 'Not saved yet · tap away to save' : 'Not saved yet · Return or click away saves') : '');
+    msg.classList.toggle('is-warn', !!msgWarn);
+    const src = srcName();
+    let facts;
+    if (t.kind === 'ep') facts = `<div>Community <svg class="ic ic--fill" aria-hidden="true"><use href="#i-star"></use></svg> <b>${fmt(e && e.comm)}</b> · ${src}${e && e.votes ? `, ${votes(e.votes)} votes` : ''}</div>`;
+    else {
+      const list = t.kind === 'show' ? epList(sh) : se.eps.map(x => ({ mine: yEp(sh.id, se.n, x.e), comm: x.comm }));
+      const r = list.filter(x => x.mine != null), a = mean(r.map(x => x.mine)), c = mean(list.map(x => x.comm).filter(x => x != null));
+      facts = `<div>Avg of ${r.length} rated episode${r.length === 1 ? '' : 's'} ${a == null ? '' : `<span class="avgnum" style="${bs(a)}">${fmt(a)}</span>`} · yours stays your own</div>`
+        + `<div>Community <svg class="ic ic--fill" aria-hidden="true"><use href="#i-star"></use></svg> <b>${fmt(t.kind === 'show' ? sh.comm : c)}</b> · ${src}${t.kind === 'show' ? (sh.votes ? `, ${votes(sh.votes)} votes` : '') : ', episode average'}</div>`;
+    }
+    $('.rate__facts').innerHTML = facts;
+    markSel();
+  }
+  // SAVE: one committed rating = one store write = one diary entry. A score equal to the saved one is not a change.
+  function save(v) {
+    draft = null; msgWarn = ''; conflict = 0;
+    if (isScore(v) && v !== get(target)) set(target, v);   // the store's change event redraws the page
+    fill(); place(true);
+  }
+  const commitDraft = () => { if (draft != null) save(draft); };
+  function preview(v) { draft = isScore(v) ? v : null; msgWarn = ''; fill(); }
+
+  /* on a Mac-sized window the sheet is a popover beside what you clicked, arrow pointing at it; it goes below or above
+     a grid cell so the cell and its row stay in view, and flips to the other side near the window's edges.
+     Phones and narrow windows keep the sheet form: at the bottom (or the top), with the tapped cell scrolled into the
+     part of the screen the sheet leaves free. */
+  const desk = matchMedia('(min-width: 1024px) and (min-height: 620px)');
+  let anchorSel = null, side = null;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  function selFor(el, t) {
+    if (el?.matches('.top__btn')) return `.top__btn[data-s="${t.s}"][data-e="${t.e}"]`;
+    if (el?.matches('.rate-btn')) return '.show .rate-btn';
+    if (t.kind === 'show') return '.show .score--xl';
+    return `.rg [data-rate="${t.kind}"][data-s="${t.s}"]${t.kind === 'ep' ? `[data-e="${t.e}"]` : ''}`;
+  }
+  // the sheet on a phone: bottom first (under the thumb), the top if the cell cannot be brought clear of it
+  function placeSheet(keep) {
+    dlg.classList.remove('is-pop'); dlg.style.removeProperty('left'); dlg.style.removeProperty('top'); delete dlg.dataset.side;
+    const a = anchorSel && document.querySelector(anchorSel);
+    if (!a) { dlg.dataset.pos = 'bottom'; return; }
+    const H = innerHeight, h = dlg.offsetHeight, m = 12, edge = 16;
+    const zone = pos => (pos === 'bottom' ? [m, H - h - edge - m] : [edge + h + m, H - m]);
+    const root = document.scrollingElement, maxY = () => root.scrollHeight - H;
+    const inZone = (pos, r) => { const [lo, hi] = zone(pos); return r.top >= lo - .5 && r.bottom <= hi + .5; };
+    const tryPos = pos => {
+      const [lo, hi] = zone(pos);
+      let r = a.getBoundingClientRect();
+      if (hi - lo < r.height) return false;
+      if (!inZone(pos, r)) {   // centre the cell in the free part of the screen, as far as the page can scroll
+        const want = (lo + hi) / 2 - r.height / 2;
+        root.scrollTo({ top: clamp(root.scrollTop + r.top - want, 0, Math.max(0, maxY())), behavior: 'instant' });
+        r = a.getBoundingClientRect();
+      }
+      return inZone(pos, r);
+    };
+    const order = keep && dlg.dataset.pos ? [dlg.dataset.pos, dlg.dataset.pos === 'bottom' ? 'top' : 'bottom'] : ['bottom', 'top'];
+    dlg.dataset.pos = order.find(tryPos) || order[0];
+  }
+  function place(keep) {
+    if (!desk.matches) return placeSheet(keep);
+    const a = anchorSel && document.querySelector(anchorSel);
+    if (!a && keep && dlg.classList.contains('is-pop')) return;   // e.g. a Top Rated tile that left the list: stay put
+    dlg.classList.toggle('is-pop', !!a);
+    delete dlg.dataset.pos;
+    if (!a) { dlg.style.removeProperty('left'); dlg.style.removeProperty('top'); delete dlg.dataset.side; return; }
+    const r = a.getBoundingClientRect(), W = innerWidth, H = innerHeight, m = 10, gap = 16;
+    const w = dlg.offsetWidth, h = dlg.offsetHeight;
+    const room = { below: H - r.bottom - gap - m, above: r.top - gap - m, right: W - r.right - gap - m, left: r.left - gap - m };
+    const need = s => room[s] - (s === 'below' || s === 'above' ? h : w);
+    const order = a.matches('.rg .cell') ? ['below', 'above', 'right', 'left'] : ['right', 'left', 'above', 'below'];
+    if (!keep || !side) side = order.find(s => need(s) >= 0) || order.slice().sort((x, y) => need(y) - need(x))[0];
+    let x, y;
+    if (side === 'below' || side === 'above') {
+      x = clamp(r.left + r.width / 2 - w / 2, m, W - w - m);
+      y = clamp(side === 'below' ? r.bottom + gap : r.top - gap - h, m, H - h - m);
+      dlg.style.setProperty('--ax', clamp(r.left + r.width / 2 - x, 34, w - 34) + 'px');
+    } else {
+      x = clamp(side === 'right' ? r.right + gap : r.left - gap - w, m, W - w - m);
+      y = clamp(r.top + r.height / 2 - h / 2, m, H - h - m);
+      dlg.style.setProperty('--ay', clamp(r.top + r.height / 2 - y, 34, h - 34) + 'px');
+    }
+    dlg.style.left = Math.round(x) + 'px'; dlg.style.top = Math.round(y) + 'px';
+    dlg.dataset.side = side;
+  }
+  addEventListener('resize', () => { if (dlg.open) place(true); });
+
+  // a hash link or stale tile can name an episode or season the show does not have: nothing to rate then
+  function exists(t) {
+    const sh = full.get(t.show);
+    if (!sh) return false;
+    if (t.kind === 'show') return true;
+    const se = sh.seasons.find(s => s.n === t.s);
+    return !!se && (t.kind === 'season' || se.map.has(t.e));
+  }
+  function open(t, from) {
+    if (!exists(t)) return;
+    if (closing) { clearTimeout(closing); closing = 0; dlg.classList.remove('is-out'); dlg.classList.add('is-in'); }
+    const fresh = !dlg.open;
+    draft = null; msgWarn = ''; conflict = 0;
+    target = t; shownSaved = get(t); anchorSel = selFor(from, t); fill();
+    field.value = shownSaved == null ? '' : fmt(shownSaved);   // a sheet that is already open switches target cleanly: no old text
+    if (document.activeElement === field) field.select();
+    if (fresh) { dlg.classList.remove('is-out'); dlg.showModal(); }
+    markSel(); place(!fresh);
+    if (fresh) {
+      // focus moves into the sheet: on a Mac straight into the typed field (digits just type), on touch to the sheet itself (no keyboard pop-up)
+      if (coarse.matches) $('.dt__glass', dlg).focus(); else { field.focus(); field.select(); }
+      requestAnimationFrame(() => requestAnimationFrame(() => dlg.classList.add('is-in')));
+    }
+  }
+  // save = true: a pending draft is saved first (Return, Close, clicking away); false: Esc, the draft is dropped
+  function finish(saveDraft) {
+    if (!dlg.open || closing) return;
+    if (saveDraft && !conflict) commitDraft();   // a draft over a score changed elsewhere is dropped, never written over it
+    draft = null; msgWarn = ''; conflict = 0;
+    dlg.classList.remove('is-in'); dlg.classList.add('is-out');
+    closing = setTimeout(() => {
+      closing = 0; dlg.close(); dlg.classList.remove('is-out');
+      document.querySelectorAll('.cell.is-sel').forEach(c => c.classList.remove('is-sel'));
+      // the page redrew when the rating saved, so look the cell up again; focus goes back to what opened the sheet
+      (anchorSel && document.querySelector(anchorSel))?.focus({ preventScroll: true });
+    }, 230);
+  }
+  function banner(title, body, undoFn) {
+    const el = $('.banner');
+    $('.banner__title', el).textContent = title; $('.banner__body', el).textContent = body;
+    $('.banner__undo', el).hidden = !undoFn; $('.banner__undo', el).tabIndex = undoFn ? 0 : -1;
+    undo = undoFn;
+    el.classList.remove('is-out'); el.classList.add('is-in');
+    clearTimeout(bannerTimer);
+    bannerTimer = setTimeout(() => { el.classList.add('is-out'); el.classList.remove('is-in'); undo = null; }, 5000);
+  }
+  function hideBanner() { clearTimeout(bannerTimer); $('.banner').classList.add('is-out'); $('.banner').classList.remove('is-in'); }
+  // Undo goes through the store's own token: it brings back the value AND first_rated_at, and says no if the rating changed since
+  function runUndo() {
+    if (!undo) return;
+    const fn = undo; undo = null; hideBanner(); fn();
+  }
+
+  dlg.addEventListener('click', e => {
+    if (closing) return;
+    if (e.target === dlg) return finish(true);                // clicking away (the backdrop)
+    const pick = e.target.closest('.pick');
+    if (pick) { if (compact.matches && e.detail > 0) return; return save(+pick.dataset.pick * 10); }   // phones: pointer handling below picks
+    const step = e.target.closest('[data-step]');
+    if (step) {
+      const dir = +step.dataset.step, base = draft != null ? draft : get(target);
+      if (base == null && dir < 0) return;                    // nothing to step down from
+      return preview(clamp((base ?? 0) + dir, 0, 100));
+    }
+    if (e.target.closest('[data-action="close"]')) return finish(true);
+    if (e.target.closest('[data-action="remove"]')) {
+      const t = target, old = get(t);
+      if (old == null) return;
+      draft = null;
+      const token = R.clear(item(t)), what = label(t);        // the store keeps first_rated_at in the token
+      finish(false);
+      if (token) banner('Rating removed', `${what} was ${fmt(old)}`, () => {
+        if (R.undo(token)) banner('Rating restored', `${what} is back to ${fmt(old)}`, null);
+        else banner("Couldn't undo", `${what} was changed since, so it was left as it is`, null);
+      });
+    }
+  });
+  dlg.addEventListener('cancel', e => { e.preventDefault(); finish(false); });
+  // phones: the 0-10 row is one control. A tap or drag lands on the nearest mark (highlight follows the finger); letting go saves it.
+  let hot = -1;
+  const idxAt = e => { const r = picks.getBoundingClientRect(); return clamp(Math.floor((e.clientX - r.left) / (r.width / 11)), 0, 10); };
+  const setHot = i => { hot = i; picks.querySelectorAll('.pick').forEach((p, k) => p.classList.toggle('is-hot', k === i)); };
+  picks.addEventListener('pointerdown', e => { if (!compact.matches || closing || e.button) return; e.preventDefault(); try { picks.setPointerCapture(e.pointerId); } catch (x) {} picks.focus({ preventScroll: true }); setHot(idxAt(e)); });
+  picks.addEventListener('pointermove', e => { if (hot >= 0) setHot(idxAt(e)); });
+  picks.addEventListener('pointerup', e => { if (hot < 0) return; const i = idxAt(e); setHot(-1); save(i * 10); });
+  picks.addEventListener('pointercancel', () => setHot(-1));
+  function pickMode() {
+    const c = compact.matches;
+    picks.setAttribute('role', c ? 'slider' : 'radiogroup');
+    if (c) { picks.tabIndex = 0; picks.setAttribute('aria-valuemin', '0'); picks.setAttribute('aria-valuemax', '10'); }
+    else { picks.removeAttribute('tabindex'); ['aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext'].forEach(a => picks.removeAttribute(a)); }
+    picks.querySelectorAll('.pick').forEach(p => { if (c) { p.removeAttribute('role'); p.setAttribute('aria-hidden', 'true'); } else { p.setAttribute('role', 'radio'); p.removeAttribute('aria-hidden'); } });
+  }
+  pickMode();
+  compact.addEventListener('change', () => { pickMode(); if (dlg.open && target) fill(); });
+  const slider = $('.fine__range');
+  slider.addEventListener('input', e => { conflict = 0; preview(+e.target.value); });   // previews only
+  // letting go saves once (a keyboard user holds the draft until Return or leaving)
+  for (const type of ['pointerup', 'pointercancel']) slider.addEventListener(type, () => commitDraft());
+  slider.addEventListener('touchend', () => commitDraft());
+  // "8.7", "8,7" or "87" (= 8.7), "10", "0" are scores; anything else is not, and is never saved
+  const parse = s => {
+    const m = /^(\d{1,3})(?:[.,](\d))?$/.exec(s.trim());
+    if (!m) return null;
+    const n = +m[1];
+    if (m[2] != null) { const v = n * 10 + +m[2]; return n <= 10 && v <= 100 ? v : null; }
+    return n <= 10 ? n * 10 : n <= 100 ? n : null;
+  };
+  const HINT = 'Type a score from 0 to 10, like 8.7 or 87';
+  field.addEventListener('input', () => {
+    // the draft is only ever what the field text says: empty, "8." or anything that is not a score means no draft
+    const s = field.value.trim();
+    if (!s) { draft = null; msgWarn = ''; return fill(); }
+    const v = parse(s);
+    if (v == null) { draft = null; msgWarn = /^\d{1,2}[.,]$/.test(s) ? '' : HINT; return fill(); }   // "8." is still being typed: no hint yet
+    preview(v);
+  });
+  field.addEventListener('blur', () => { msgWarn = ''; field.value = ''; fill(); });
+  dlg.addEventListener('keydown', e => {
+    if (closing) return;
+    if (e.key === 'Escape') { e.preventDefault(); return finish(false); }
+    if (e.key === 'Enter' && !e.target.closest('.pick, .rate__close, [data-action="remove"]')) {
+      e.preventDefault();
+      if (e.target === field) {
+        if (field.value.trim()) {
+          const v = parse(field.value);
+          if (v == null) { draft = null; msgWarn = HINT; fill(); field.select(); return; }
+          draft = v;
+        } else draft = null;   // an empty field means nothing to save: Return just closes
+      }
+      if (conflict === 1) { conflict = 2; fill(); return; }   // the saved score changed under this draft: a second Return confirms
+      conflict = 0;
+      return finish(true);
+    }
+    if (e.key === 'Tab') {   // Tab cycles inside the sheet
+      const f = [...dlg.querySelectorAll('button, input, .rate__picks[role="slider"]')].filter(x => !x.disabled && x.tabIndex >= 0 && x.getClientRects().length);
+      if (!f.length) return;
+      const i = f.indexOf(document.activeElement), last = f.length - 1;
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[last].focus(); }
+      else if (!e.shiftKey && (i === -1 || i === last)) { e.preventDefault(); f[0].focus(); }
+      return;
+    }
+    if (e.target === picks && compact.matches && /^(Arrow(Left|Right|Up|Down)|Home|End)$/.test(e.key)) {   // phone row: arrows step whole numbers, Return saves
+      const base = draft != null ? draft : get(target);
+      const n = e.key === 'Home' ? 0 : e.key === 'End' ? 100 : /Right|Up/.test(e.key) ? (base == null ? 0 : Math.min(100, Math.floor(base / 10) * 10 + 10)) : (base == null ? 0 : Math.max(0, Math.ceil(base / 10) * 10 - 10));
+      e.preventDefault(); return preview(n);
+    }
+    const pk = e.target.closest?.('.pick');
+    if (pk && /^(Arrow(Left|Right|Up|Down)|Home|End)$/.test(e.key)) {   // arrows move between the 0-10 choices
+      const all = [...dlg.querySelectorAll('.pick')], i = all.indexOf(pk);
+      const j = e.key === 'Home' ? 0 : e.key === 'End' ? all.length - 1 : clamp(i + (/Left|Up/.test(e.key) ? -1 : 1), 0, all.length - 1);
+      e.preventDefault(); all[j].focus(); return;
+    }
+    // on a Mac: type the digits straight away, Return saves
+    if (/^[0-9.,]$/.test(e.key) && !e.metaKey && !e.ctrlKey && !e.altKey && document.activeElement !== field) { field.value = ''; field.focus(); }
+  });
+  // the pending slider/stepper draft is saved if focus leaves the slider (no pointer release seen)
+  slider.addEventListener('blur', () => { if (!closing && dlg.open) commitDraft(); });
+
+  /* ---------- page events ---------- */
+  document.addEventListener('click', e => {
+    if (e.target.closest('dialog')) return;
+    const r = e.target.closest('[data-rate]');
+    if (r) return open({ kind: r.dataset.rate, show: state.show, s: +r.dataset.s, e: +r.dataset.e }, r);
+    const m = e.target.closest('[data-mode]');
+    if (m) { state.mode = m.dataset.mode; renderShow(); return; }
+    if (e.target.closest('[data-retry]')) { openShow(state.show); return; }
+    const back = e.target.closest('[data-back]');
+    if (back) { openShow(back.dataset.back); return; }
+    const lib = e.target.closest('[data-show]');
+    if (lib) {
+      const ep = lib.closest('.cc-ep');
+      openShow(lib.dataset.show).then(ok => {
+        if (!ok || !ep) return;
+        $(`.rg [data-rate="ep"][data-s="${ep.dataset.s}"][data-e="${ep.dataset.e}"]`)?.scrollIntoView({ block: 'nearest' });
+        open({ kind: 'ep', show: state.show, s: +ep.dataset.s, e: +ep.dataset.e });
+      });
+      return;
+    }
+    const sort = e.target.closest('[data-sort]');
+    if (sort) {
+      state.sort = sort.dataset.sort;
+      document.querySelectorAll('[data-sort]').forEach(b => { const on = b === sort; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on); });
+      renderLibrary(); return;
+    }
+    const sec = e.target.closest('[data-section]');
+    if (sec) {
+      const s = sec.dataset.section;
+      // sections built in their own files (search.js, diary.js) register here; the fallbacks below stay until then
+      if (window.App.sections[s]) { window.App.sections[s](sec); return; }
+      if (s === 'search') { $('.search__input').focus(); return; }
+      if (s === 'stats') {
+        const cc = $('.cc'), r = cc.getBoundingClientRect();
+        if (r.top < 0 || r.top > innerHeight * .6) cc.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+        cc.classList.remove('is-flash'); void cc.offsetWidth; cc.classList.add('is-flash');
+        setTimeout(() => cc.classList.remove('is-flash'), 600);
+        const first = $('.cc-count'); first.tabIndex = -1; first.focus({ preventScroll: true });   // screen readers hear "Rated so far: ..."
+        return;
+      }
+      if (s === 'diary') {
+        const d = R.diary({ limit: 1 })[0];
+        const where = !d ? '' : d.kind === 'episode' ? `S${d.season}E${d.episode} ${d.episode_name ? '“' + d.episode_name + '” ' : ''}` : d.kind === 'season' ? `Season ${d.season} ` : '';
+        banner('Diary', d ? `Latest: ${d.show_name || 'Show ' + d.tmdb_id} ${where}${d.value == null ? 'rating removed' : fmt(d.value)}` : 'Nothing rated yet. Pick any grid cell to rate an episode.', null);
+      }
+    }
+    if (e.target.closest('[data-action="undo"]')) runUndo();
+    const file = e.target.closest('[data-file]');
+    if (file) { if (file.dataset.file === 'export') exportFile(); else $('.cc-data__file').click(); }
+  });
+  // Export: a .json file of every rating in the Free My TV row shape plus kind. Import: merges a file like that (or Free My TV's own rows), newer wins, with Undo
+  function exportFile() {
+    const text = R.exportJSON(), n = JSON.parse(text).length, d = new Date();
+    const name = `tv-ratings-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    banner('Exported', `${n} ${n === 1 ? 'rating' : 'ratings'} saved as ${name}`, null);
+  }
+  $('.cc-data__file').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    try {
+      const r = R.importJSON(await f.text(), { mode: 'merge' });
+      const bits = [`${r.added} added`, `${r.updated} updated`]; if (r.skipped) bits.push(`${r.skipped} skipped`);
+      banner('Imported', r.added || r.updated ? bits.join(' · ') : 'Nothing new in that file', r.undo ? () => { if (R.undo(r.undo)) banner('Import undone', 'Your ratings are back as they were', null); else banner('Can’t undo the import', 'Some of those ratings changed since', null); } : null);
+    } catch (err) {
+      banner('Couldn’t import that file', 'It needs to be a TV Ratings export or Free My TV’s ratings (.json)', null);
+    }
+  });
+  // keyboard on the grid (sheet closed): arrows move between cells, Return or Space opens the focused one (they are buttons);
+  // while the Undo banner is up, Cmd/Ctrl+Z is Undo
+  document.addEventListener('keydown', e => {
+    if (dlg.open) return;
+    if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'z' && undo && !e.target.closest?.('input, textarea')) { e.preventDefault(); return runUndo(); }
+    const c = e.target.closest?.('.rg .cell'), d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+    if (!c || !d || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    const rows = [...c.closest('table').querySelectorAll('tbody tr, tr.rg-own')];
+    let r = rows.indexOf(c.closest('tr')), col = c.closest('td').cellIndex, next = null;
+    for (let n = 0; n < 200 && !next; n++) {   // skip gaps where a season has no such episode
+      r += d[1]; col += d[0];
+      if (r < 0 || r >= rows.length || col < 1 || col >= rows[r].cells.length) break;
+      next = rows[r].cells[col].querySelector('.cell');
+    }
+    e.preventDefault();
+    if (next) { next.focus(); next.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+  });
+  // the pinned episode column gets its backing only while the seasons are scrolled under it
+  let stuckRaf = 0;
+  document.addEventListener('scroll', e => {
+    const t = e.target;
+    if (t.classList?.contains('rg-wrap')) t.classList.toggle('is-scrolled', t.scrollLeft > 0);
+    // long shows: the season labels stay pinned under the top of the pane, with a backing once they are stuck
+    if (t.classList?.contains('pane__scroll') && !stuckRaf) stuckRaf = requestAnimationFrame(() => { stuckRaf = 0; const th = $('.rg thead th'); if (th) $('.show').classList.toggle('is-stuck', t.scrollTop > 0 && th.getBoundingClientRect().top <= t.getBoundingClientRect().top + 1); });
+  }, { passive: true, capture: true });
+  $('.search__input').addEventListener('input', e => { state.q = e.target.value.trim().toLowerCase(); renderLibrary(); });
+
+  /* ---------- opening a show ---------- */
+  // Opens any TMDB show by id (shows in sample.js and ones that are not). Resolves true once its page is on screen,
+  // false if the id is bad, the load failed (the page then says so, with Try again) or another show was opened meanwhile.
+  async function openShow(id, opts) {
+    id = +id;
+    if (!Number.isInteger(id) || id <= 0) return false;
+    state.show = id; state.err = null;
+    const have = full.get(id), ready = !!have && !have.partial;
+    if (!ready) renderShow();                 // the light loading state
+    renderLibrary();
+    if (!ready) {
+      try { await loadFull(id); }
+      catch (err) { if (state.show === id) { state.err = err; renderShow(); } return false; }
+    }
+    if (state.show !== id) return false;
+    state.last = id;
+    renderShow(); renderLibrary(); markSel();
+    if (!(opts && opts.keepScroll)) $('.pane__scroll').scrollTop = 0;
+    return true;
+  }
+
+  // any change to your ratings (this tab, another tab, an import) redraws from the store; the open show and the scroll stay
+  R.on('change', () => { render(); if (dlg.open && target) fill(); });
+
+  state.show = libIds()[0] ?? null;
+  render();
+  // links for checking states: #rate=5-14, #rate=season-5, #rate=show, #show=60059, #view=community, #at=top
+  async function fromHash() {
+    const h = new URLSearchParams(location.hash.slice(1));
+    if (h.get('view') === 'community') state.mode = 'comm';
+    const id = +h.get('show') || state.show;
+    const ok = id ? await openShow(id, { keepScroll: true }) : (render(), false);
+    if (!ok) return;
+    if (h.get('at') === 'top') $('.top').scrollIntoView({ block: 'end' });
+    const r = h.get('rate');
+    if (!r) return;
+    if (r === 'show') open({ kind: 'show', show: state.show });
+    else if (r.startsWith('season-')) open({ kind: 'season', show: state.show, s: +r.slice(7) });
+    else { const [s, ep] = r.split('-').map(Number); open({ kind: 'ep', show: state.show, s, e: ep }); }
+  }
+  if (location.hash) fromHash(); else if (state.show != null) openShow(state.show, { keepScroll: true });
+  addEventListener('hashchange', fromHash);
+  // shared with search.js and diary.js (they load after this script and register in App.sections)
+  window.App = Object.assign(window.App || {}, { openShow, render, band, fmt, esc, img, banner, sections: (window.App && window.App.sections) || {} });
+  return { render, openShow };
+})();
+
+</script>
+
+<script>
+/* Static glass. The wallpaper is drawn once into a canvas (no live SVG blur), and glass that sits still on it
+   (the task sheet, Control Center's labels and Edit Controls) gets its blurred backdrop baked into an image
+   at the same blur, so nothing re-blurs while the list scrolls. It looks the same; on a resize, a theme change,
+   the stacked layout or reduced transparency the live backdrop-filter is used instead. */
+const glass = (() => {
+  const wp = document.querySelector('.wallpaper'), svg = wp?.querySelector('svg');
+  if (!svg || !window.CanvasRenderingContext2D) return { refresh() {} };
+  const desk = matchMedia('(min-width: 1024px) and (min-height: 620px)');
+  const dark = matchMedia('(prefers-color-scheme: dark)');
+  const solid = matchMedia('(prefers-reduced-transparency: reduce)');
+  const canFilter = 'filter' in CanvasRenderingContext2D.prototype;
+  const SEL = '.sheet, .cc-sort__label, .cc-edit, .cc-mod, .dock';
+  const rasters = {};                 // 'light' | 'dark' -> canvas, kept for the session
+  let shown = null, job = 0, timer = 0;
+  const urls = new Map();
+
+  // the wallpaper SVG with its CSS colours written in, so it draws the same outside the page
+  function svgText() {
+    const copy = svg.cloneNode(true), src = svg.querySelectorAll('*'), dst = copy.querySelectorAll('*');
+    src.forEach((el, i) => {
+      if (!el.getAttribute('class')) return;
+      const cs = getComputedStyle(el), d = dst[i];
+      if (el.tagName === 'stop') d.setAttribute('stop-color', cs.stopColor);
+      else { d.setAttribute('fill', cs.fill); d.setAttribute('stroke', cs.stroke); }
+      d.removeAttribute('class');
+    });
+    return copy;
+  }
+  // big enough for this screen at this pixel density, so it is only ever scaled down (cover, centred = xMidYMid slice)
+  function rasterScale() {
+    const dpr = Math.min(devicePixelRatio || 1, 3);
+    const s = Math.max(screen.width, innerWidth) / 1440, t = Math.max(screen.height, innerHeight) / 900;
+    return Math.min(Math.max(s, t) * dpr, 4096 / 1440);
+  }
+  async function raster(scheme) {
+    const k = rasterScale();
+    if (rasters[scheme] && rasters[scheme]._k >= k - 0.01) return rasters[scheme];
+    const copy = svgText(), W = Math.round(1440 * k), H = Math.round(900 * k);
+    copy.setAttribute('width', W); copy.setAttribute('height', H);
+    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(copy)], { type: 'image/svg+xml' }));
+    try {
+      const img = new Image(); img.src = url; await img.decode();
+      const c = document.createElement('canvas'); c.width = W; c.height = H; c._k = k;
+      c.className = 'wallpaper__raster'; c.setAttribute('aria-hidden', 'true');
+      c.getContext('2d').drawImage(img, 0, 0, W, H);
+      return (rasters[scheme] = c);
+    } finally { URL.revokeObjectURL(url); }
+  }
+  // where a CSS pixel of the viewport lands on the raster (object-fit: cover, centred)
+  function mapper(c) {
+    const s = Math.max(innerWidth / 1440, innerHeight / 900), ox = (innerWidth - 1440 * s) / 2, oy = (innerHeight - 900 * s) / 2, r = c._k / s;
+    return (x, y) => [(x - ox) * r, (y - oy) * r, r];
+  }
+  // backdrop-filter mirrors the backdrop at the element's edge; do the same so the edges match
+  function bakeOne(el, c, f) {
+    const b = el.getBoundingClientRect(), w = Math.round(b.width), h = Math.round(b.height);
+    if (!w || !h) return null;
+    const blur = +(/blur\(([\d.]+)px\)/.exec(f)?.[1] || 0), P = Math.ceil(blur * 3) + 2;
+    const map = mapper(c), [sx, sy, r] = map(b.left, b.top);
+    const src = document.createElement('canvas'); src.width = w + 2 * P; src.height = h + 2 * P;
+    const g = src.getContext('2d');
+    g.imageSmoothingQuality = 'high';
+    const piece = (dx, dy, fx, fy) => { g.save(); g.translate(P + dx, P + dy); g.scale(fx, fy); g.drawImage(c, sx, sy, w * r, h * r, 0, 0, w, h); g.restore(); };
+    piece(0, 0, 1, 1);
+    piece(0, 0, -1, 1); piece(2 * w, 0, -1, 1); piece(0, 0, 1, -1); piece(0, 2 * h, 1, -1);
+    piece(0, 0, -1, -1); piece(2 * w, 0, -1, -1); piece(0, 2 * h, -1, -1); piece(2 * w, 2 * h, -1, -1);
+    const out = document.createElement('canvas'); out.width = w; out.height = h;
+    const o = out.getContext('2d'); o.filter = f; o.drawImage(src, -P, -P);
+    return out;
+  }
+  const on = () => desk.matches && !solid.matches && canFilter;
+  // back to the live blur: always correct straight away, so dropping a bake never leaves a gap
+  function clear() { document.querySelectorAll('.is-baking, .is-baked').forEach(el => el.classList.remove('is-baking', 'is-baked')); }
+  async function refresh() {
+    const my = ++job, scheme = dark.matches ? 'dark' : 'light';
+    clear();
+    let c;
+    try { c = await raster(scheme); } catch { c = null; }
+    if (my !== job) return;
+    if (c && shown !== c) { shown?.remove(); wp.append(c); shown = c; }
+    wp.classList.toggle('is-raster', !!c);
+    if (!c || !on()) return;
+    await new Promise(requestAnimationFrame);
+    if (my !== job) return;
+    const els = [...document.querySelectorAll(SEL)], jobs = [];
+    for (const el of els) {
+      const f = getComputedStyle(el).backdropFilter;
+      if (!f || f === 'none') continue;
+      try {   // a browser that taints the canvas just keeps the live blur
+        const out = bakeOne(el, c, f);
+        if (out) jobs.push(new Promise(res => out.toBlob(bl => res([el, bl]))));
+      } catch { return; }
+    }
+    // decode every image before the page sees it, so the CSS background is ready on its first frame
+    const done = await Promise.all((await Promise.all(jobs)).map(async ([el, bl]) => {
+      if (!bl) return null;
+      const u = URL.createObjectURL(bl), img = new Image();
+      img.src = u;
+      try { await img.decode(); } catch { URL.revokeObjectURL(u); return null; }
+      return [el, u, img];
+    }));
+    const ready = done.filter(Boolean);
+    const drop = () => ready.forEach(([, u]) => URL.revokeObjectURL(u));
+    if (my !== job) return drop();
+    for (const [el, u, img] of ready) {
+      if (urls.has(el)) URL.revokeObjectURL(urls.get(el).u);
+      urls.set(el, { u, img });               // the decoded image stays referenced while it's on screen
+      el.style.setProperty('--baked', `url("${u}")`);
+      el.classList.add('is-baking');           // baked image over the live blur: same look either way
+    }
+    // let the baked layer paint (two frames), then switch the live blur off underneath it
+    await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame);
+    if (my !== job) return;
+    for (const [el] of ready) if (el.classList.contains('is-baking')) el.classList.add('is-baked');
+  }
+  const soon = () => { clear(); clearTimeout(timer); timer = setTimeout(refresh, 180); };
+  addEventListener('resize', soon);
+  for (const m of [desk, solid]) m.addEventListener('change', soon);
+  // light <-> dark: back to the live SVG at once (its colours follow the theme), then draw the new one
+  dark.addEventListener('change', () => { job++; wp.classList.remove('is-raster'); shown?.remove(); shown = null; soon(); });
+  // a label that changes size would stretch its baked image: re-bake (the live blur covers the gap)
+  const sizes = new WeakMap();
+  const ro = new ResizeObserver(list => {
+    let moved = false;
+    for (const e of list) { const k = Math.round(e.contentRect.width) + 'x' + Math.round(e.contentRect.height); if (sizes.has(e.target) && sizes.get(e.target) !== k) moved = true; sizes.set(e.target, k); }
+    if (moved) soon();
+  });
+  document.querySelectorAll(SEL).forEach(el => ro.observe(el));
+  return { refresh, soon };
+})();
+
+/* ---------- hover while the list scrolls ---------- */
+// Rows sliding under a still pointer would each fade their hover highlight in and out on the main thread, and those
+// fades miss frames while the compositor scrolls. So the list drops row hover for the length of a scroll (CSS:
+// .pane__scroll.is-scrolling) and gets it back, with the usual fade, when the scroll ends or the pointer moves.
+(() => {
+  let el = null, timer = 0, px = NaN, py = NaN;
+  const stop = () => { clearTimeout(timer); timer = 0; el?.classList.remove('is-scrolling'); el = null; };
+  // back a moment after the last wheel or scroll event, not at each scrollend: a mouse wheel ends a scroll at every
+  // notch, and the highlight would start to fade in between notches
+  const start = sc => {
+    if (el !== sc) { stop(); el = sc; sc.classList.add('is-scrolling'); }
+    clearTimeout(timer); timer = setTimeout(stop, 140);
+  };
+  // the wheel arrives before the list moves, so the first frame of the scroll already has hover off
+  document.addEventListener('wheel', e => { const sc = e.target.closest?.('.pane__scroll'); if (sc) start(sc); }, { passive: true, capture: true });
+  for (const type of ['scroll', 'scrollend']) document.addEventListener(type, e => { if (e.target.classList?.contains('pane__scroll')) start(e.target); }, { passive: true, capture: true });
+  document.addEventListener('pointermove', e => {
+    const moved = e.clientX !== px || e.clientY !== py;
+    px = e.clientX; py = e.clientY;
+    if (el && moved) stop();
+  }, { passive: true });
+})();
+
+(document.fonts?.ready || Promise.resolve()).then(() => glass.refresh());
+</script>
+<link rel="stylesheet" href="search.css">
+<script src="search.js"></script>
+<link rel="stylesheet" href="diary.css">
+<script src="diary.js"></script>
+<link rel="stylesheet" href="top.css">
+<script src="top.js"></script>
+<script>
+// Offline copy of the app: sw.js keeps the app shell; it is skipped where service workers aren't available (file://, private tabs)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>

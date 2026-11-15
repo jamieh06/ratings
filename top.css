@@ -1,0 +1,217 @@
+/* ============================================================
+   Top Rated: your best episodes, seasons and shows, ranked (standard s5).
+   It takes over the sheet's main pane (the sidebar stays), exactly as the Diary does, with the same glass,
+   type, radii and tokens. Pictures and scores lead: a big rank number, the still (or poster) with its
+   band-coloured score on it, then the name. Plain text on the glass, hairlines between rows, no bars.
+   Motion: opacity and transform only. Everything here follows the tokens in index.html.
+   ============================================================ */
+:root {
+  --tp-thumb-w: 136px;
+  --tp-rank-fs: 28px;
+  --tp-link: var(--accent-text);
+  --tp-ring: rgba(0, 0, 0, .42);                                /* a dark edge round the score badge, so it holds on any still */
+}
+@media (prefers-color-scheme: dark) {
+  :root { --tp-link: color-mix(in srgb, var(--accent) 55%, #fff); }   /* 4.5:1+ on the dark pill, solid or glass */
+}
+
+.pane { position: relative; }
+.sheet.has-top .pane__scroll { display: none; }
+
+.toprated {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 180ms var(--ease-sheet), transform 240ms var(--ease-sheet);
+  /* opening it scrolls the page to here in the stacked layout: keep the title clear of a phone's status bar */
+  scroll-margin-top: calc(16px + env(safe-area-inset-top, 0px));
+}
+.toprated[hidden] { display: none; }
+.toprated.is-in { opacity: 1; transform: none; }
+
+/* title row: back to the show page, the heading and the count */
+.tp-top { display: flex; align-items: center; gap: 14px; padding: 18px 22px 10px; }
+.tp-back {
+  position: relative; flex: none;
+  display: flex; align-items: center; gap: 2px;
+  height: 28px; padding: 0 12px 0 7px;
+  border-radius: 14px;
+  background: var(--round-bg);
+  box-shadow: inset 0 .5px 0 rgba(255,255,255,.5), 0 .5px 1px rgba(0,0,0,.06);
+  color: var(--tp-link);
+  font-size: 13px; font-weight: 500;
+  transition: transform 140ms var(--ease-snap), background-color 150ms var(--ease-snap);
+}
+.tp-back .ic { font-size: 15px; stroke-width: 2.2; }
+.tp-back:hover { background: var(--hover); }
+.tp-back:active { transform: scale(.97); }
+.tp-titles { min-width: 0; }
+.tp-h { margin: 0; font-size: 22px; font-weight: 700; line-height: 26px; letter-spacing: -0.015em; }
+.tp-h:focus { outline: 0; }
+.tp-sub { margin: 1px 0 0; font-size: 12px; line-height: 15px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+/* choices: what to rank, how many, and which show (segmented, as on the show page and the Diary) */
+.tp-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 4px 22px 12px; }
+.tp-pick { position: relative; display: block; margin-left: auto; max-width: 100%; }
+.tp-pick[hidden] { display: none; }
+.tp-pick::after {
+  content: ""; position: absolute; right: 13px; top: 50%;
+  width: 6px; height: 6px;
+  border: solid var(--text-2); border-width: 0 1.7px 1.7px 0;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+.tp-select {
+  -webkit-appearance: none; appearance: none;
+  display: block; max-width: 100%; width: 218px; height: 28px;
+  padding: 0 30px 0 12px;
+  border: 0; border-radius: 14px;
+  background: var(--field-bg);
+  box-shadow: inset 0 0 0 .5px var(--sep), 0 .5px 1px rgba(0,0,0,.04);
+  color: var(--text-1);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+.tp-select.is-on { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 70%, transparent); }
+.tp-select:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 2px; }
+
+/* the list scrolls inside the pane */
+.tp-scroll {
+  flex: 1; min-height: 0; overflow: auto;
+  padding: 4px 14px 12px;
+  border-top: .5px solid var(--sep);
+  scrollbar-width: thin; scrollbar-color: var(--text-3) transparent;
+  overscroll-behavior: contain;
+}
+.tp-list {
+  list-style: none; margin: 0; padding: 0;
+  --tp-rank-w: calc(var(--rk, 2) * var(--tp-rank-fs) * .62);   /* --rk (digits in the biggest rank) is set by top.js */
+  --tp-lead: calc(10px + var(--tp-rank-w) + 14px);            /* where a row's picture starts: the hairline begins there */
+}
+.tp-item { position: relative; list-style: none; }
+.tp-item + .tp-item::before { content: ""; position: absolute; top: 0; right: 10px; left: var(--tp-lead); height: .5px; background: var(--sep); }
+.tp-row {
+  position: relative;
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; min-height: 92px;
+  padding: 10px 10px;
+  border-radius: 14px;
+  text-align: left;
+  scroll-margin-top: calc(16px + env(safe-area-inset-top, 0px));
+  transition: background-color 150ms var(--ease-snap);
+}
+.tp-row:hover { background: var(--hover); }
+.tp-row:active { background: var(--sel); }
+.tp-scroll.is-scrolling .tp-row:hover { background: transparent; }
+
+/* the rank is the first thing you read: big, tabular, the top three in full ink */
+.tp-rank {
+  flex: none; width: var(--tp-rank-w);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  color: var(--text-2);
+}
+.tp-n { font-size: var(--tp-rank-fs); font-weight: 700; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.tp-tied { font-size: 10px; font-weight: 600; line-height: 12px; letter-spacing: .02em; text-transform: uppercase; }
+.tp-rank.is-top { color: var(--text-1); }
+
+/* the picture carries the score: the episode's still (16:9) or the season / show poster (2:3), with the band-coloured
+   badge on it. The slot is fixed so the names line up. */
+.tp-tslot { flex: none; width: var(--tp-thumb-w); display: grid; place-items: center; }
+.tp-media { position: relative; display: block; }
+.tp-media--still { width: var(--tp-thumb-w); aspect-ratio: 16 / 9; }
+.tp-media--poster { width: 50px; aspect-ratio: 2 / 3; }
+.tp-thumb { position: absolute; inset: 0; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.28), inset 0 0 0 .5px rgba(255,255,255,.18); }
+.tp-media--poster .tp-thumb { border-radius: 6px; }
+.tp-thumb .ph__txt { font-size: 13px; padding: 2px; }
+.tp-media--poster .ph__txt { font-size: 11px; }
+.tp-chip {
+  position: absolute; right: 6px; bottom: 6px;
+  height: 32px; min-width: 52px; padding: 0 10px;
+  border-radius: 8px;
+  font-size: 19px; letter-spacing: -0.02em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 0 0 2px var(--tp-ring), 0 2px 6px rgba(0,0,0,.35);
+}
+.tp-media--poster .tp-chip { right: -26px; bottom: 6px; }   /* hangs over the poster's lower edge */
+.tp-chip.score--own { border-radius: 999px; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.62), 0 0 0 2px var(--tp-ring), 0 2px 6px rgba(0,0,0,.35); }
+
+.tp-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.tp-title { font-size: 14px; line-height: 19px; color: var(--text-1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tp-title b { font-weight: 600; }
+.tp-dot { color: var(--text-2); }
+.tp-meta { font-size: 12px; line-height: 15px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+/* empty: nothing rated yet on this tab (with the next step), or a show with nothing of this kind */
+.tp-empty { display: none; }
+.toprated.is-empty .tp-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; flex: 1; min-height: 320px; padding: 32px 28px; text-align: center; }
+.tp-empty svg.tp-empty__ic { width: 52px; height: 52px; margin-bottom: 8px; color: var(--text-2); stroke-width: 1.4; }
+.tp-empty__h { margin: 0; font-size: 17px; font-weight: 600; line-height: 22px; }
+.tp-empty__p { margin: 0; max-width: 380px; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+.tp-empty .pillbtn { margin-top: 14px; }
+
+.tp-dock-dot { display: block; }
+
+/* 1920 x 1080: a wider pane, so bigger stills, type and badges (the same steps the show page takes) */
+@container pane (min-width: 1000px) {
+  .toprated { --tp-thumb-w: 188px; --tp-rank-fs: 36px; }
+  .tp-top { padding: 24px 30px 12px; }
+  .tp-h { font-size: 26px; line-height: 31px; }
+  .tp-sub { font-size: 13px; }
+  .tp-filters { padding: 4px 30px 14px; }
+  .tp-scroll { padding: 6px 22px 16px; }
+  .tp-row { min-height: 124px; padding: 12px 14px; gap: 20px; }
+  .tp-item + .tp-item::before { left: calc(14px + var(--tp-rank-w) + 20px); right: 14px; }
+  .tp-media--poster { width: 68px; }
+  .tp-media--poster .tp-chip { right: -32px; }
+  .tp-title { font-size: 17px; line-height: 23px; }
+  .tp-meta { font-size: 13px; line-height: 17px; }
+  .tp-chip { height: 38px; min-width: 62px; font-size: 23px; right: 8px; bottom: 8px; }
+  .tp-select { width: 260px; height: 30px; font-size: 14px; }
+}
+
+/* stacked window (under 1024 wide or 620 tall): the page scrolls, the list grows to its length */
+@media (max-width: 1023px), (max-height: 619px) {
+  .toprated { flex: none; }
+  .tp-scroll { overflow: visible; flex: none; }
+}
+/* phones: the library is out of the way, one column */
+@media (max-width: 640px) {
+  :root { --tp-thumb-w: 104px; --tp-rank-fs: 24px; }
+  .sheet.has-top .side { display: none; }
+  .tp-top { padding: 16px 14px 8px; gap: 12px; }
+  .tp-h { font-size: 20px; line-height: 24px; }
+  .tp-filters { padding: 4px 14px 12px; }
+  .tp-seg { width: 100%; }
+  .tp-seg .seg__btn { flex: 1 1 0; padding: 0 6px; }
+  .tp-pick { margin-left: 0; width: 100%; }
+  .tp-select { width: 100%; }
+  .tp-scroll { padding: 2px 6px 12px; }
+  .tp-row { gap: 10px; padding: 9px 8px; min-height: 84px; }
+  .tp-item + .tp-item::before { left: calc(8px + var(--tp-rank-w) + 10px); right: 8px; }
+  .tp-media--poster { width: 46px; }
+  .tp-media--poster .tp-chip { right: -22px; }
+  .tp-chip { height: 30px; min-width: 48px; font-size: 17px; right: 5px; bottom: 5px; }
+  .tp-title { font-size: 13px; line-height: 17px; }
+}
+/* touch and phones: every control gets a 44x44 hit area (the look stays the same); inputs are 16px so iOS doesn't zoom */
+@media (max-width: 640px), (pointer: coarse) {
+  .tp-back::before { content: ""; position: absolute; inset: -8px -4px; }
+  .tp-select { height: 44px; font-size: 16px; padding-left: 14px; border-radius: 22px; }
+  .tp-seg .seg__btn { min-width: 44px; }
+  .tp-pick::after { right: 16px; }
+}
+@media (pointer: coarse) {
+  .tp-row:hover { background: transparent; }
+  .tp-row:active { background: var(--sel); }
+}
+
+:focus-visible.tp-row { outline-offset: -2px; }
+
+/* reduced motion: it fades in, nothing moves */
+@media (prefers-reduced-motion: reduce) {
+  .toprated { transform: none; }
+  .tp-back:active { transform: none; }
+}
+
+/* posters are narrower than the chip: a smaller chip centred on the poster's lower edge, so it sits on the picture */
+.tp-media--poster .tp-chip { right: auto; left: 50%; margin-left: -22px; bottom: 5px; min-width: 44px; height: 26px; padding: 0 6px; font-size: 16px; border-radius: 7px; }

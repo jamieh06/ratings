@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#7a78ee"/><stop offset="1" stop-color="#4642c4"/></linearGradient>
+    <linearGradient id="tv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e6e8f7"/></linearGradient>
+    <linearGradient id="st" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffdc3d"/><stop offset="1" stop-color="#ff9f0a"/></linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="229" fill="url(#bg)"/>
+  <g transform="translate(512 497) scale(.92) translate(-512 -477)">
+  <path d="M468 268L392 178M556 268L632 178" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round"/>
+  <rect x="388" y="696" width="248" height="46" rx="23" fill="#e6e8f7"/>
+  <rect x="176" y="262" width="672" height="440" rx="100" fill="url(#tv)"/>
+  <path d="M448 372v210l172-105z" fill="#5856d6" stroke="#5856d6" stroke-width="36" stroke-linejoin="round"/>
+  <path d="M742.0 554.0 L771.4 631.5 L854.2 635.5 L789.6 687.5 L811.4 767.5 L742.0 722.0 L672.6 767.5 L694.4 687.5 L629.8 635.5 L712.6 631.5Z" fill="url(#st)" stroke="#4d4acb" stroke-width="34" stroke-linejoin="round" paint-order="stroke"/>
+  </g>
+</svg>
