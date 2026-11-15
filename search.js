@@ -297,9 +297,9 @@
       }
     } catch (e) {}
     if (!list.length) {
-      head = 'Your shows';
+      head = 'Sample shows';   // nothing rated yet: these are suggestions, not your library
       const d = window.TV_DATA;
-      if (d && Array.isArray(d.shows)) list = d.shows.slice(0, MAX_RECENT).map(s => ({ id: s.tmdb, name: s.name, year: startYear(s.years), poster: s.poster || null, comm: tenths(s.community), votes: s.votes }));
+      if (d && Array.isArray(d.shows)) list = d.shows.slice(0, MAX_RECENT).map(s => ({ id: s.tmdb, name: s.name, year: startYear(s.years), poster: s.poster || null, comm: s.community ?? null, votes: s.votes }));   // sample.js keeps community scores in tenths already (95 = 9.5)
     }
     if (!list.length) { setItems([], -1); setHead(''); renderMessage('Search for a show', 'Rate any episode of it and it joins your library.'); return; }
     setItems(list, -1); st.sel = -1; syncActive();
