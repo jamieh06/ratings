@@ -25,6 +25,8 @@
                                        milliseconds; an ISO string with no time zone is UTC; more than 1 day in the
                                        future = invalid (row skipped). A file of only tv_ratings rows holds episodes
                                        only, so 'replace' removes only episode ratings: season/show ratings stay.
+     Ratings.applyRemote(rows, removedItems) -> bool; sets rows (export format) exactly and deletes removedItems, for
+                                       sync.js; emits {type: 'remote'}. Ratings.keyOf(item) -> 'kind:id:season:episode'
      Ratings.on('change', fn) / Ratings.off('change', fn)   fn({type, item, value, previous, ...})
      Ratings.persistent                false when localStorage is unavailable (store still works in memory)
      Ratings.problems                  notes about bad stored data that was set aside (tvr.corrupt-<time>)
@@ -472,6 +474,38 @@
     return result;
   }
 
+  /* ---------- sync (sync.js) ---------- */
+  // Take the server's ratings as they are: rows in the export format are set exactly (score and rated_at), removed items
+  // are deleted. A diary entry ('sync') only where the score itself changed. Emits {type: 'remote'}, which sync.js
+  // never pushes back.
+  function applyRemote(rows, removed) {
+    sync();
+    var changed = false;
+    (rows || []).forEach(function (row) {
+      var rec = rowToRecord(row);
+      if (!rec) return;
+      var k = keyOf(rec), old = ratings.get(k) || null;
+      if (old && !rec.show_name) rec.show_name = old.show_name;
+      if (old && rec.kind === 'episode' && !rec.episode_name) rec.episode_name = old.episode_name;
+      if (old && old.tenths === rec.tenths && old.rated_at === rec.rated_at && old.show_name === rec.show_name && old.episode_name === rec.episode_name) return;
+      rec.first_rated_at = old ? (old.first_rated_at < rec.rated_at ? old.first_rated_at : rec.rated_at) : rec.rated_at;
+      ratings.set(k, rec);
+      if (!old || old.tenths !== rec.tenths) addDiary(rec, rec.tenths, old ? old.tenths : null, rec.rated_at, 'sync');
+      changed = true;
+    });
+    (removed || []).forEach(function (item) {
+      var it = normItem(item);
+      if (!it) return;
+      var k = keyOf(it), old = ratings.get(k);
+      if (!old) return;
+      ratings.delete(k);
+      addDiary(old, null, old.tenths, now(), 'sync');
+      changed = true;
+    });
+    if (changed) { save(); emit({ type: 'remote' }); }
+    return changed;
+  }
+
   /* ---------- events API ---------- */
   function on(name, fn) {
     if (name === 'change' && typeof fn === 'function') listeners.change.push(fn);
@@ -486,7 +520,8 @@
   /* ---------- wire up ---------- */
   Object.assign(api, {
     get: get, set: set, clear: clear, undo: undo, forShow: forShow, all: all, diary: diaryList,
-    deleteDiaryEntry: deleteDiaryEntry, exportJSON: exportJSON, importJSON: importJSON, on: on, off: off
+    deleteDiaryEntry: deleteDiaryEntry, exportJSON: exportJSON, importJSON: importJSON, on: on, off: off,
+    applyRemote: applyRemote, keyOf: function (item) { var it = normItem(item); return it ? keyOf(it) : null; }
   });
 
   load();

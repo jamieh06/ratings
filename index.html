@@ -1399,6 +1399,10 @@ html:has(.dt[open]) body { overflow: hidden; }
 /* Export / Import (the Free My TV row shape plus kind): its own row under the sort buttons, shown even when nothing is rated */
 .cc-data { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .cc-data .cc-pill { grid-column: auto; height: 63px; }
+.cc-data .cc-sync { grid-column: 1 / -1; }
+/* TV mode (tv.js, inside Free My TV): no files on a TV, and a focus you can see from the sofa */
+.is-tv [data-file] { display: none; }
+.is-tv :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 /* Stats in the Dock when Control Center is already on screen: a short lift so the click visibly lands */
 .cc.is-flash > :is(.cc-mod, .cc-sort, .cc-data) { animation: cc-flash 520ms var(--ease-snap); }
 @keyframes cc-flash { 45% { transform: translateY(-4px) scale(1.02); } }
@@ -1787,6 +1791,7 @@ html:has(.dt[open]) body { overflow: hidden; }
     <div class="cc-data" role="group" aria-label="Your ratings file">
       <button class="cc-mod rim cc-pill" type="button" data-file="export"><span class="cc-pill__icon"><svg class="ic" aria-hidden="true"><use href="#i-export"></use></svg></span><span class="cc-pill__text"><span class="cc-pill__title">Export</span><span class="cc-pill__sub">Save a file</span></span></button>
       <button class="cc-mod rim cc-pill" type="button" data-file="import"><span class="cc-pill__icon"><svg class="ic" aria-hidden="true"><use href="#i-import"></use></svg></span><span class="cc-pill__text"><span class="cc-pill__title">Import</span><span class="cc-pill__sub">Load a file</span></span></button>
+      <button class="cc-mod rim cc-pill cc-sync" type="button" data-sync><span class="cc-pill__icon"><svg class="ic" aria-hidden="true"><use href="#i-tv"></use></svg></span><span class="cc-pill__text"><span class="cc-pill__title">Free My TV</span><span class="cc-pill__sub" data-sync-sub>Sync</span></span></button>
       <input class="cc-data__file" type="file" accept=".json,application/json" hidden>
     </div>
   </aside>
@@ -2858,6 +2863,34 @@ const glass = (() => {
 <script src="diary.js"></script>
 <link rel="stylesheet" href="top.css">
 <script src="top.js"></script>
+<script src="sync.js"></script>
+<script>
+// The Free My TV pill: where sync is; a tap syncs now, or (signed out on the Mac or iPhone) opens the To Do app to sign in
+(function () {
+  const btn = document.querySelector('[data-sync]'), sub = document.querySelector('[data-sync-sub]');
+  if (!btn || !window.Sync) return;
+  function ago(t) {
+    const m = Math.round((Date.now() - t) / 60000);
+    return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.round(m / 60) + ' h ago';
+  }
+  function show(st) {
+    const tv = document.documentElement.classList.contains('is-tv');
+    sub.textContent = st.state === 'busy' ? 'Syncing…'
+      : st.state === 'ok' ? 'Synced · ' + ago(st.lastOk)
+      : st.state === 'offline' ? 'Offline · syncs later'
+      : st.state === 'error' ? 'Couldn’t sync · try again'
+      : tv ? 'Connecting…' : 'Sign in to sync';
+  }
+  Sync.on(show);
+  show(Sync.status());
+  setInterval(() => show(Sync.status()), 30000);
+  btn.addEventListener('click', () => {
+    if (Sync.status().state === 'off' && !document.documentElement.classList.contains('is-tv')) window.open(Sync.signInUrl, '_blank');
+    else Sync.now();
+  });
+})();
+</script>
+<script src="tv.js"></script>
 <script>
 // Offline copy of the app: sw.js keeps the app shell; it is skipped where service workers aren't available (file://, private tabs)
 if ('serviceWorker' in navigator) {

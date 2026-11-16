@@ -11,15 +11,15 @@
    Changed icons or manifest: bump VERSION (they are fetched only at install).
    Edit this file, and bump VERSION, only when you add or remove a file in SHELL (a new JS or CSS file must be listed here or it is
    not available offline), or to force-clear the cache. The browser re-reads sw.js itself on every load. */
-const VERSION = 'v2';   // v2: top.js and top.css added to SHELL
+const VERSION = 'v3';   // v2: top.js and top.css added to SHELL; v3: sync.js and tv.js
 const SHELL_CACHE = 'tvr-shell-' + VERSION;
 const IMG_CACHE = 'tvr-img-v1';             // kept across versions, trimmed by count
 const IMG_PREFIX = 'https://image.tmdb.org/t/p/';
 const IMG_MAX = 150;
-const SHELL = ['index.html', 'sample.js', 'store.js', 'tmdb.js', 'search.js', 'search.css', 'diary.js', 'diary.css', 'top.js', 'top.css',
+const SHELL = ['index.html', 'sample.js', 'store.js', 'tmdb.js', 'search.js', 'search.css', 'diary.js', 'diary.css', 'top.js', 'top.css', 'sync.js', 'tv.js',
   'manifest.webmanifest', 'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png',
   'icons/icon-maskable-512.png', 'icons/favicon.svg', 'icons/favicon-32.png'];
-const CODE = SHELL.slice(0, 10);          // what must match index.html: fetched together on each online load (icons and manifest only at install)
+const CODE = SHELL.slice(0, 12);          // what must match index.html: fetched together on each online load (icons and manifest only at install)
 const BASE = self.registration.scope;
 const url = p => new URL(p, BASE).href;
 const INDEX = url('index.html');
