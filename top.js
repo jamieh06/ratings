@@ -279,6 +279,9 @@
     if (st.open) { $('#tp-title', root).focus({ preventScroll: true }); return; }
     if (App.diary && App.diary.isOpen && App.diary.isOpen()) App.diary.close({ focus: false });
     st.open = true; st.sig = ''; st.selSig = null;
+    // the remembered tab has nothing in it (say Seasons, with only episodes rated): open on the first one that has some
+    const now = compute();
+    if (!now[pref.kind].length) { const k = KINDS.find(x => now[x[0]].length); if (k) pref.kind = k[0]; }
     root.hidden = false;
     sheet.classList.add('has-top');
     dockMark(true);
