@@ -139,15 +139,16 @@
   window.addEventListener('storage', e => { if (e.key === SESSION_KEY && e.newValue) soon(200); });   // signed in in the To Do app's tab
   setInterval(() => { if (!document.hidden) run(); }, 120e3);
 
-  // Free My TV (the parent window) sends the TV's key; nothing else may. Only in TV mode (?tv=1), only from Free My TV's
-  // own local page (webOS runs it from a file: origin 'null' or 'file://'; the Mac test copy is this same origin), and
+  // Free My TV (the parent window) sends the TV's key; nothing else may. Only in TV mode (?tv=1), only when this copy runs
+  // from files installed on the TV (file:, its parent's origin 'null' or 'file://') or is the Mac test copy, and
   // only for this project's Supabase (or, on the Mac test copy at 127.0.0.1, a local stand-in), so a page that frames the
   // published app can't point it at another server.
   const TV_MODE = new URLSearchParams(location.search).get('tv') === '1';
   const LOCAL_TEST = location.hostname === '127.0.0.1';
   function fromFreeMyTv(e) {
-    return TV_MODE && window.parent !== window && e.source === window.parent
-      && (e.origin === 'null' || e.origin === 'file://' || e.origin === location.origin);
+    if (!TV_MODE || window.parent === window || e.source !== window.parent) return false;
+    if (location.protocol === 'file:') return e.origin === 'null' || e.origin === 'file://';   // installed on the TV
+    return LOCAL_TEST && e.origin === location.origin;   // the Mac test copy; the published site never takes a key
   }
   function allowedServer(raw) {
     let u;
